@@ -1,0 +1,368 @@
+<%- include('partials/header') %>
+
+<!-- Maps Page Content -->
+<div class="bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+    <h2 class="text-2xl font-bold text-red-500 border-b-2 border-red-500 pb-2 mb-6">
+        <i class="fas fa-map mr-2"></i> Sunucu Haritaları
+    </h2>
+    
+    <div class="mb-6 p-4 bg-gray-700 rounded-lg">
+        <div class="flex items-center mb-4">
+            <i class="fas fa-info-circle text-blue-400 text-xl mr-3"></i>
+            <p>Sunucumuzda <span class="text-green-400 font-bold">8</span> adet harita bulunmakta ve düzenli olarak güncellenmektedir.</p>
+        </div>
+        <div class="flex space-x-2">
+            <span class="bg-green-900/40 text-green-400 px-3 py-1 rounded-full text-sm">Aktif Harita: <span class="font-bold"><%= serverData.map %></span></span>
+            <span class="bg-blue-900/40 text-blue-400 px-3 py-1 rounded-full text-sm">Oyuncu Sayısı: <%= serverData.players.online %>/<%= serverData.players.max %></span>
+        </div>
+    </div>
+    
+    <!-- Map Categories -->
+    <div class="flex flex-wrap gap-2 mb-6">
+        <button class="map-filter active bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm" data-category="all">
+            Tüm Haritalar
+        </button>
+        <button class="map-filter bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm" data-category="classic">
+            Klasik
+        </button>
+        <button class="map-filter bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm" data-category="custom">
+            Özel
+        </button>
+        <button class="map-filter bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm" data-category="popular">
+            En Popüler
+        </button>
+    </div>
+    
+    <!-- Maps Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Dust2 -->
+        <div class="map-card" data-category="classic popular">
+            <div class="relative group rounded-lg overflow-hidden shadow-lg transform transition-all duration-300 hover:scale-[1.02] hover:shadow-red-500/20 hover:shadow-xl">
+                <img src="https://tsarvar.com/map/cs1.6/10/301/de_dust2_e594ef.jpg" alt="de_dust2" class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                <div class="absolute top-2 right-2">
+                    <% if (serverData.map === 'de_dust2') { %>
+                        <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Aktif</span>
+                    <% } %>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+                    <h3 class="text-xl font-bold text-white mb-1 drop-shadow-md">Dust II</h3>
+                    <div class="flex items-center">
+                        <span class="text-sm bg-black/50 rounded px-2 py-1">de_dust2</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Inferno -->
+        <div class="map-card" data-category="classic popular">
+            <div class="relative group rounded-lg overflow-hidden shadow-lg transform transition-all duration-300 hover:scale-[1.02] hover:shadow-red-500/20 hover:shadow-xl">
+                <img src="https://tsarvar.com/map/cs1.6/9/1/de_inferno_e46890.jpg" alt="de_inferno" class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                <div class="absolute top-2 right-2">
+                    <% if (serverData.map === 'de_inferno') { %>
+                        <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Aktif</span>
+                    <% } %>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+                    <h3 class="text-xl font-bold text-white mb-1 drop-shadow-md">Inferno</h3>
+                    <div class="flex items-center">
+                        <span class="text-sm bg-black/50 rounded px-2 py-1">de_inferno</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Aztec -->
+        <div class="map-card" data-category="classic">
+            <div class="relative group rounded-lg overflow-hidden shadow-lg transform transition-all duration-300 hover:scale-[1.02] hover:shadow-red-500/20 hover:shadow-xl">
+                <img src="https://tsarvar.com/map/cs1.6/10/322/de_aztec_63bc9b.jpg" alt="de_aztec" class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                <div class="absolute top-2 right-2">
+                    <% if (serverData.map === 'de_aztec') { %>
+                        <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Aktif</span>
+                    <% } %>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+                    <h3 class="text-xl font-bold text-white mb-1 drop-shadow-md">Aztec</h3>
+                    <div class="flex items-center">
+                        <span class="text-sm bg-black/50 rounded px-2 py-1">de_aztec</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dust -->
+        <div class="map-card" data-category="classic">
+            <div class="relative group rounded-lg overflow-hidden shadow-lg transform transition-all duration-300 hover:scale-[1.02] hover:shadow-red-500/20 hover:shadow-xl">
+                <img src="https://tsarvar.com/map/cs1.6/10/303/de_dust_e2b59f.jpg" alt="de_dust" class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                <div class="absolute top-2 right-2">
+                    <% if (serverData.map === 'de_dust') { %>
+                        <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Aktif</span>
+                    <% } %>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+                    <h3 class="text-xl font-bold text-white mb-1 drop-shadow-md">Dust</h3>
+                    <div class="flex items-center">
+                        <span class="text-sm bg-black/50 rounded px-2 py-1">de_dust</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Nuke -->
+        <div class="map-card" data-category="classic">
+            <div class="relative group rounded-lg overflow-hidden shadow-lg transform transition-all duration-300 hover:scale-[1.02] hover:shadow-red-500/20 hover:shadow-xl">
+                <img src="https://tsarvar.com/map/cs1.6/10/266/de_nuke_bdf2fc.jpg" alt="de_nuke" class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                <div class="absolute top-2 right-2">
+                    <% if (serverData.map === 'de_nuke') { %>
+                        <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Aktif</span>
+                    <% } %>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+                    <h3 class="text-xl font-bold text-white mb-1 drop-shadow-md">Nuke</h3>
+                    <div class="flex items-center">
+                        <span class="text-sm bg-black/50 rounded px-2 py-1">de_nuke</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tuscan -->
+        <div class="map-card" data-category="classic">
+            <div class="relative group rounded-lg overflow-hidden shadow-lg transform transition-all duration-300 hover:scale-[1.02] hover:shadow-red-500/20 hover:shadow-xl">
+                <img src="https://tsarvar.com/map/cs1.6/9/32/de_tuscan_5b52ba.jpg" alt="de_tuscan" class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                <div class="absolute top-2 right-2">
+                    <% if (serverData.map === 'de_tuscan') { %>
+                        <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Aktif</span>
+                    <% } %>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+                    <h3 class="text-xl font-bold text-white mb-1 drop-shadow-md">Tuscan</h3>
+                    <div class="flex items-center">
+                        <span class="text-sm bg-black/50 rounded px-2 py-1">de_tuscan</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mirage -->
+        <div class="map-card" data-category="classic popular">
+            <div class="relative group rounded-lg overflow-hidden shadow-lg transform transition-all duration-300 hover:scale-[1.02] hover:shadow-red-500/20 hover:shadow-xl">
+                <img src="https://tsarvar.com/map/cs1.6/5/692/de_mirage_b04749.jpg" alt="de_mirage" class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                <div class="absolute top-2 right-2">
+                    <% if (serverData.map === 'de_mirage') { %>
+                        <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Aktif</span>
+                    <% } %>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+                    <h3 class="text-xl font-bold text-white mb-1 drop-shadow-md">Mirage</h3>
+                    <div class="flex items-center">
+                        <span class="text-sm bg-black/50 rounded px-2 py-1">de_mirage</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Barcelona -->
+        <div class="map-card" data-category="custom">
+            <div class="relative group rounded-lg overflow-hidden shadow-lg transform transition-all duration-300 hover:scale-[1.02] hover:shadow-red-500/20 hover:shadow-xl">
+                <img src="https://tsarvar.com/map/cs1.6/3/8/de_barcelona_fdb8c3.jpg" alt="de_barcelona" class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                <div class="absolute top-2 right-2">
+                    <% if (serverData.map === 'de_barcelona') { %>
+                        <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Aktif</span>
+                    <% } %>
+                    <span class="bg-purple-900/70 text-white text-xs px-2 py-1 rounded-full ml-1">Özel</span>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+                    <h3 class="text-xl font-bold text-white mb-1 drop-shadow-md">Barcelona</h3>
+                    <div class="flex items-center">
+                        <span class="text-sm bg-black/50 rounded px-2 py-1">de_barcelona</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Map Detail Overlay -->
+    <div id="mapDetailOverlay" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden">
+        <div class="bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full mx-4 overflow-hidden">
+            <div class="relative">
+                <img id="mapDetailImage" src="" alt="Map Detail" class="w-full h-64 object-cover">
+                <div class="absolute inset-0 bg-gradient-to-b from-transparent to-gray-800/90"></div>
+                <button id="closeMapDetail" class="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="absolute bottom-4 left-4">
+                    <h2 id="mapDetailName" class="text-2xl font-bold text-white"></h2>
+                    <p id="mapDetailCode" class="text-gray-300"></p>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="bg-blue-900/40 text-blue-400 px-3 py-1 rounded-full text-sm flex items-center">
+                        <i class="fas fa-balance-scale mr-1"></i> Denge: <span id="mapDetailBalance">CT: 50% | T: 50%</span>
+                    </span>
+                    <span class="bg-green-900/40 text-green-400 px-3 py-1 rounded-full text-sm flex items-center">
+                        <i class="fas fa-check-circle mr-1"></i> Sunucuda Mevcut
+                    </span>
+                </div>
+                <p id="mapDetailDescription" class="text-gray-300 mb-6"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Harita filtreleme sistemi
+        const filterButtons = document.querySelectorAll('.map-filter');
+        const mapCards = document.querySelectorAll('.map-card');
+        
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Aktif sınıfı kaldır
+                filterButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.classList.remove('bg-red-600');
+                    btn.classList.remove('hover:bg-red-700');
+                    btn.classList.add('bg-gray-700');
+                    btn.classList.add('hover:bg-gray-600');
+                });
+                
+                // Tıklanan butonu aktif yap
+                this.classList.add('active');
+                this.classList.remove('bg-gray-700');
+                this.classList.remove('hover:bg-gray-600');
+                this.classList.add('bg-red-600');
+                this.classList.add('hover:bg-red-700');
+                
+                const category = this.getAttribute('data-category');
+                
+                // Haritaları filtrele
+                mapCards.forEach(card => {
+                    if (category === 'all' || card.getAttribute('data-category').includes(category)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+        
+        // Harita detay overlay'i için
+        const mapDetailOverlay = document.getElementById('mapDetailOverlay');
+        const closeMapDetail = document.getElementById('closeMapDetail');
+        const mapImages = document.querySelectorAll('.map-card img');
+        
+        // Map data
+        const mapData = {
+            'de_dust2': {
+                name: 'Dust II',
+                code: 'de_dust2',
+                image: 'https://tsarvar.com/map/cs1.6/10/301/de_dust2_e594ef.jpg',
+                balance: 'CT: 52% | T: 48%',
+                description: 'CS 1.6\'nın en popüler ve dengeli haritalarından biri. İki bomba noktası ve çeşitli taktiksel varyasyonlar içerir. Orta alan, bomba noktaları ve uzun koridorlar çeşitli savaş stillerine uygun bir ortam sunar.'
+            },
+            'de_inferno': {
+                name: 'Inferno',
+                code: 'de_inferno',
+                image: 'https://tsarvar.com/map/cs1.6/9/1/de_inferno_e46890.jpg',
+                balance: 'CT: 55% | T: 45%',
+                description: 'İtalyan köy temalı bu harita dar koridorlar ve iki bomba noktası içerir. Taktiksel oyun için mükemmel. Dar geçitler ve açık alanların dengesi, hem yakın mesafe hem de uzak mesafe çatışmaları için ideal.'
+            },
+            'de_aztec': {
+                name: 'Aztec',
+                code: 'de_aztec',
+                image: 'https://tsarvar.com/map/cs1.6/10/322/de_aztec_63bc9b.jpg',
+                balance: 'CT: 65% | T: 35%',
+                description: 'Aztek tapınağı temalı bu harita, CT oyuncularına avantaj sağlayan uzun menzilli koridorlar içerir. Köprü ve tapınak alanlarının kontrol edilmesi, haritadaki hakimiyetin anahtarıdır.'
+            },
+            'de_dust': {
+                name: 'Dust',
+                code: 'de_dust',
+                image: 'https://tsarvar.com/map/cs1.6/10/303/de_dust_e2b59f.jpg',
+                balance: 'CT: 54% | T: 46%',
+                description: 'Dust II\'nin atası olan bu harita, Orta Doğu temalı bir ortamda bomba kurma/engelleme senaryosu sunar. Dust II kadar popüler olmasa da, kendi takipçileri olan klasik bir harita.'
+            },
+            'de_nuke': {
+                name: 'Nuke',
+                code: 'de_nuke',
+                image: 'https://tsarvar.com/map/cs1.6/10/266/de_nuke_bdf2fc.jpg',
+                balance: 'CT: 60% | T: 40%',
+                description: 'Nükleer tesis temalı bu harita, üst ve alt katlarda iki bomba noktası içerir. Dikey oyun mekaniği sunar. Haritalardaki nadir çok katlı yapısıyla öne çıkar ve benzersiz stratejiler gerektirir.'
+            },
+            'de_tuscan': {
+                name: 'Tuscan',
+                code: 'de_tuscan',
+                image: 'https://tsarvar.com/map/cs1.6/9/32/de_tuscan_5b52ba.jpg',
+                balance: 'CT: 51% | T: 49%',
+                description: 'İtalyan kasabası temalı bu harita, dengeli bir oyun ortamı sunar. Birçok rotaya sahip ortasıyla, çeşitli stratejilere olanak tanır. Profesyonel oyuncular tarafından tercih edilen haritalardan biridir.'
+            },
+            'de_mirage': {
+                name: 'Mirage',
+                code: 'de_mirage',
+                image: 'https://tsarvar.com/map/cs1.6/5/692/de_mirage_b04749.jpg',
+                balance: 'CT: 49% | T: 51%',
+                description: 'Fas temalı bu harita, açık orta alan ve iki bomba noktası ile dengeli oyun deneyimi sunar. Modern Counter-Strike\'ın en sevilen haritalarından biridir ve CS 1.6 versiyonu da oldukça popülerdir.'
+            },
+            'de_barcelona': {
+                name: 'Barcelona',
+                code: 'de_barcelona',
+                image: 'https://tsarvar.com/map/cs1.6/3/8/de_barcelona_fdb8c3.jpg',
+                balance: 'CT: 52% | T: 48%',
+                description: 'İspanyol mimarisi temalı bu özel harita, hem açık hem de kapalı alanlarıyla ilginç bir oyun deneyimi sunar. Benzersiz tasarımı ve farklı yerleşimi ile standart haritalardan farklı bir deneyim sunar.'
+            }
+        };
+        
+        // Harita detaylarını göster
+        mapImages.forEach(img => {
+            img.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const mapAlt = this.getAttribute('alt');
+                const mapInfo = mapData[mapAlt];
+                
+                if (mapInfo) {
+                    document.getElementById('mapDetailImage').src = mapInfo.image;
+                    document.getElementById('mapDetailName').textContent = mapInfo.name;
+                    document.getElementById('mapDetailCode').textContent = mapInfo.code;
+                    document.getElementById('mapDetailBalance').textContent = mapInfo.balance;
+                    document.getElementById('mapDetailDescription').textContent = mapInfo.description;
+                    
+                    mapDetailOverlay.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                }
+            });
+        });
+        
+        // Detay overlay kapatma
+        closeMapDetail.addEventListener('click', function() {
+            mapDetailOverlay.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        });
+        
+        // Overlay dışına tıklayınca kapat
+        mapDetailOverlay.addEventListener('click', function(e) {
+            if (e.target === mapDetailOverlay) {
+                mapDetailOverlay.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        });
+        
+        // ESC tuşu ile kapat
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !mapDetailOverlay.classList.contains('hidden')) {
+                mapDetailOverlay.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        });
+    });
+</script>
+
+<%- include('partials/footer') %> 

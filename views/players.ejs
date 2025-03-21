@@ -1,0 +1,317 @@
+<%- include('partials/header') %>
+
+<!-- Players Page Content -->
+<div class="bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+    <h2 class="text-2xl font-bold text-red-500 border-b-2 border-red-500 pb-2 mb-6">
+        <i class="fas fa-users mr-2"></i> Sunucudaki Aktif Oyuncular
+    </h2>
+
+    <div class="mb-6 p-4 bg-gray-700 rounded-lg flex flex-col sm:flex-row justify-between items-center">
+        <div class="flex items-center mb-4 sm:mb-0">
+            <i class="fas fa-info-circle text-blue-400 text-xl mr-3"></i>
+            <p>Toplam <span class="text-green-400 font-bold"><%= serverData.players.online %></span> oyuncu aktif - <span class="text-yellow-400"><%= serverData.map %></span> haritasında</p>
+        </div>
+        <div class="flex space-x-2">
+            <button id="refreshPlayers" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
+                <i class="fas fa-sync-alt mr-2"></i> Yenile
+            </button>
+            <div class="relative inline-block">
+                <button id="sortButton" class="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
+                    <i class="fas fa-sort mr-2"></i> Sırala
+                </button>
+                <div id="sortDropdown" class="hidden absolute right-0 mt-2 w-48 bg-gray-700 rounded-lg shadow-lg z-10">
+                    <a href="#" class="sort-option block px-4 py-2 text-white hover:bg-gray-600" data-sort="name">İsme göre</a>
+                    <a href="#" class="sort-option block px-4 py-2 text-white hover:bg-gray-600" data-sort="score">Skora göre</a>
+                    <a href="#" class="sort-option block px-4 py-2 text-white hover:bg-gray-600" data-sort="kills">Kill sayısına göre</a>
+                    <a href="#" class="sort-option block px-4 py-2 text-white hover:bg-gray-600" data-sort="deaths">Ölüm sayısına göre</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- CT Team -->
+        <div id="takim-ct">
+            <div class="bg-blue-900/30 p-4 rounded-t-lg flex items-center">
+                <i class="fas fa-shield-alt text-blue-400 text-2xl mr-3"></i>
+                <h3 class="text-xl font-bold text-blue-400">Counter-Terrorist Team (<%= ctPlayers.length %> oyuncu)</h3>
+            </div>
+            <div class="bg-gray-700 p-4 rounded-b-lg">
+                <% if (ctPlayers && ctPlayers.length > 0) { %>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b border-gray-600">
+                                    <th class="text-center p-2">#</th>
+                                    <th class="text-left p-2">İsim</th>
+                                    <th class="text-center p-2">Skor</th>
+                                    <th class="text-center p-2">Kill</th>
+                                    <th class="text-center p-2">Ölüm</th>
+                                    <th class="text-center p-2">K/D</th>
+                                    <th class="text-center p-2">Ping</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% ctPlayers.forEach((player, index) => { 
+                                    const kdRatio = player.deaths > 0 ? (player.kills / player.deaths).toFixed(2) : player.kills;
+                                %>
+                                <tr class="hover:bg-gray-600 border-b border-gray-600 last:border-0">
+                                    <td class="text-center p-2"><%= index + 1 %></td>
+                                    <td class="p-2 flex items-center">
+                                        <span class="w-2 h-2 bg-green-500 rounded-full inline-block mr-2"></span>
+                                        <%= player.name %>
+                                    </td>
+                                    <td class="text-center p-2"><%= player.score %></td>
+                                    <td class="text-center p-2 text-green-400"><%= player.kills %></td>
+                                    <td class="text-center p-2 text-red-400"><%= player.deaths %></td>
+                                    <td class="text-center p-2">
+                                        <span class="<%= kdRatio >= 1 ? 'text-green-400' : 'text-red-400' %>"><%= kdRatio %></span>
+                                    </td>
+                                    <td class="text-center p-2">
+                                        <span class="<%= player.ping < 100 ? 'text-green-400' : (player.ping < 200 ? 'text-yellow-400' : 'text-red-400') %>">
+                                            <%= player.ping %> ms
+                                        </span>
+                                    </td>
+                                </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } else { %>
+                    <div class="text-center py-4">
+                        <p class="text-gray-400"><i class="fas fa-user-slash mr-2"></i> Bu takımda aktif oyuncu yok</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Terrorist Team -->
+        <div id="takim-t">
+            <div class="bg-red-900/30 p-4 rounded-t-lg flex items-center">
+                <i class="fas fa-skull-crossbones text-red-400 text-2xl mr-3"></i>
+                <h3 class="text-xl font-bold text-red-400">Terrorist Team (<%= tPlayers.length %> oyuncu)</h3>
+            </div>
+            <div class="bg-gray-700 p-4 rounded-b-lg">
+                <% if (tPlayers && tPlayers.length > 0) { %>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b border-gray-600">
+                                    <th class="text-center p-2">#</th>
+                                    <th class="text-left p-2">İsim</th>
+                                    <th class="text-center p-2">Skor</th>
+                                    <th class="text-center p-2">Kill</th>
+                                    <th class="text-center p-2">Ölüm</th>
+                                    <th class="text-center p-2">K/D</th>
+                                    <th class="text-center p-2">Ping</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% tPlayers.forEach((player, index) => { 
+                                    const kdRatio = player.deaths > 0 ? (player.kills / player.deaths).toFixed(2) : player.kills;
+                                %>
+                                <tr class="hover:bg-gray-600 border-b border-gray-600 last:border-0">
+                                    <td class="text-center p-2"><%= index + 1 %></td>
+                                    <td class="p-2 flex items-center">
+                                        <span class="w-2 h-2 bg-green-500 rounded-full inline-block mr-2"></span>
+                                        <%= player.name %>
+                                    </td>
+                                    <td class="text-center p-2"><%= player.score %></td>
+                                    <td class="text-center p-2 text-green-400"><%= player.kills %></td>
+                                    <td class="text-center p-2 text-red-400"><%= player.deaths %></td>
+                                    <td class="text-center p-2">
+                                        <span class="<%= kdRatio >= 1 ? 'text-green-400' : 'text-red-400' %>"><%= kdRatio %></span>
+                                    </td>
+                                    <td class="text-center p-2">
+                                        <span class="<%= player.ping < 100 ? 'text-green-400' : (player.ping < 200 ? 'text-yellow-400' : 'text-red-400') %>">
+                                            <%= player.ping %> ms
+                                        </span>
+                                    </td>
+                                </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } else { %>
+                    <div class="text-center py-4">
+                        <p class="text-gray-400"><i class="fas fa-user-slash mr-2"></i> Bu takımda aktif oyuncu yok</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spectators -->
+    <div id="takim-spec" class="mt-6">
+        <div class="bg-gray-600 p-4 rounded-t-lg flex items-center">
+            <i class="fas fa-eye text-gray-300 text-2xl mr-3"></i>
+            <h3 class="text-xl font-bold text-gray-300">İzleyiciler (<%= spectators.length %> kişi)</h3>
+        </div>
+        <div class="bg-gray-700 p-4 rounded-b-lg">
+            <% if (spectators && spectators.length > 0) { %>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-gray-600">
+                                <th class="text-center p-2">#</th>
+                                <th class="text-left p-2">İsim</th>
+                                <th class="text-center p-2">Ping</th>
+                                <th class="text-center p-2">İzleme Süresi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% spectators.forEach((player, index) => { %>
+                            <tr class="hover:bg-gray-600 border-b border-gray-600 last:border-0">
+                                <td class="text-center p-2"><%= index + 1 %></td>
+                                <td class="p-2 flex items-center">
+                                    <span class="w-2 h-2 bg-gray-500 rounded-full inline-block mr-2"></span>
+                                    <%= player.name %>
+                                </td>
+                                <td class="text-center p-2">
+                                    <span class="<%= player.ping < 100 ? 'text-green-400' : (player.ping < 200 ? 'text-yellow-400' : 'text-red-400') %>">
+                                        <%= player.ping %> ms
+                                    </span>
+                                </td>
+                                <td class="text-center p-2 text-gray-400"><%= player.time || '0:00' %></td>
+                            </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="text-center py-4">
+                    <p class="text-gray-400"><i class="fas fa-user-slash mr-2"></i> İzleyici yok</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<!-- Player Stats Summary -->
+<div class="bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+    <h2 class="text-2xl font-bold text-red-500 border-b-2 border-red-500 pb-2 mb-6">
+        <i class="fas fa-award mr-2"></i> Sunucu İstatistikleri
+    </h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Top Players -->
+        <div class="bg-gray-700 p-4 rounded-lg">
+            <h3 class="font-bold text-lg mb-3 text-yellow-400">
+                <i class="fas fa-trophy mr-2"></i> En İyi Oyuncular (Skor)
+            </h3>
+            <ul class="space-y-2" id="top-players-list">
+                <% 
+                const allPlayers = [...ctPlayers, ...tPlayers];
+                const topPlayers = allPlayers.sort((a, b) => b.score - a.score).slice(0, 5);
+                
+                topPlayers.forEach((player, index) => { 
+                    const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+                %>
+                    <li class="flex items-center justify-between p-2 bg-gray-600 rounded-md">
+                        <div class="flex items-center">
+                            <span class="text-xl mr-2"><%= medals[index] %></span>
+                            <span><%= player.name %></span>
+                        </div>
+                        <div class="text-yellow-400 font-bold"><%= player.score %> puan</div>
+                    </li>
+                <% }); %>
+                
+                <% if (topPlayers.length === 0) { %>
+                    <li class="text-center p-3 text-gray-400">Veri yok</li>
+                <% } %>
+            </ul>
+        </div>
+        
+        <!-- Most Kills -->
+        <div class="bg-gray-700 p-4 rounded-lg">
+            <h3 class="font-bold text-lg mb-3 text-green-400">
+                <i class="fas fa-skull mr-2"></i> En Çok Kill
+            </h3>
+            <ul class="space-y-2" id="top-killers-list">
+                <% 
+                const topKillers = allPlayers.sort((a, b) => b.kills - a.kills).slice(0, 5);
+                
+                topKillers.forEach((player, index) => { 
+                    const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+                %>
+                    <li class="flex items-center justify-between p-2 bg-gray-600 rounded-md">
+                        <div class="flex items-center">
+                            <span class="text-xl mr-2"><%= medals[index] %></span>
+                            <span><%= player.name %></span>
+                        </div>
+                        <div class="text-green-400 font-bold"><%= player.kills %> kill</div>
+                    </li>
+                <% }); %>
+                
+                <% if (topKillers.length === 0) { %>
+                    <li class="text-center p-3 text-gray-400">Veri yok</li>
+                <% } %>
+            </ul>
+        </div>
+        
+        <!-- Best K/D Ratio -->
+        <div class="bg-gray-700 p-4 rounded-lg">
+            <h3 class="font-bold text-lg mb-3 text-blue-400">
+                <i class="fas fa-balance-scale mr-2"></i> En İyi K/D Oranı
+            </h3>
+            <ul class="space-y-2" id="top-kd-list">
+                <% 
+                // Filter players with at least 1 death to avoid division by zero
+                const playersWithDeaths = allPlayers.filter(p => p.deaths > 0);
+                const topKD = playersWithDeaths
+                    .map(p => ({...p, kd: p.kills / p.deaths}))
+                    .sort((a, b) => b.kd - a.kd)
+                    .slice(0, 5);
+                
+                topKD.forEach((player, index) => { 
+                    const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+                %>
+                    <li class="flex items-center justify-between p-2 bg-gray-600 rounded-md">
+                        <div class="flex items-center">
+                            <span class="text-xl mr-2"><%= medals[index] %></span>
+                            <span><%= player.name %></span>
+                        </div>
+                        <div class="text-blue-400 font-bold"><%= player.kd.toFixed(2) %></div>
+                    </li>
+                <% }); %>
+                
+                <% if (topKD.length === 0) { %>
+                    <li class="text-center p-3 text-gray-400">Veri yok</li>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Dropdown menu için
+    document.addEventListener('DOMContentLoaded', function() {
+        const sortButton = document.getElementById('sortButton');
+        const sortDropdown = document.getElementById('sortDropdown');
+        
+        sortButton.addEventListener('click', function() {
+            sortDropdown.classList.toggle('hidden');
+        });
+        
+        // Sayfa herhangi bir yerine tıklandığında dropdown'ı kapatma
+        document.addEventListener('click', function(event) {
+            if (!sortButton.contains(event.target) && !sortDropdown.contains(event.target)) {
+                sortDropdown.classList.add('hidden');
+            }
+        });
+        
+        // Sıralama seçenekleri
+        const sortOptions = document.querySelectorAll('.sort-option');
+        sortOptions.forEach(option => {
+            option.addEventListener('click', function(e) {
+                e.preventDefault();
+                const sortBy = this.getAttribute('data-sort');
+                // Burada sıralama fonksiyonunu çağırabilirsiniz
+                console.log('Sort by:', sortBy);
+                sortDropdown.classList.add('hidden');
+            });
+        });
+    });
+</script>
+
+<%- include('partials/footer') %> 

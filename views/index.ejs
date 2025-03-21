@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= serverData.serverName %></title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Header Section -->
+    <header class="bg-gray-800 shadow-lg p-4">
+        <div class="container mx-auto flex flex-col md:flex-row items-center justify-between">
+            <div class="flex items-center mb-4 md:mb-0">
+                <img src="https://cs-online.club/uploads/posts/2020-11/1606134179_cs-logo.png" alt="CS 1.6 Logo" class="w-16 h-16 mr-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-red-500">VESSELAM PRO PUBLIC</h1>
+                    <p class="text-green-400">[REVIVE + HEAL BOMB]</p>
+                </div>
+            </div>
+            
+            <div class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4">
+                <div class="text-center md:text-right">
+                    <p class="text-gray-300"><i class="fas fa-server mr-2"></i>Sunucu IP:</p>
+                    <p class="text-yellow-400 font-mono font-bold"><%= serverData.serverIP %></p>
+                </div>
+                <a href="steam://connect/<%= serverData.serverIP %>" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105">
+                    <i class="fas fa-play-circle mr-2"></i>Hemen Bağlan
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto py-8 px-4">
+        <!-- Server Status -->
+        <div class="bg-gray-800 rounded-lg shadow-lg p-4 mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-bold text-red-500 border-b-2 border-red-500 pb-2 mb-4">Sunucu Durumu</h2>
+                    <div class="flex items-center">
+                        <% if (serverData.status === 'online') { %>
+                            <span class="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                            <p class="text-green-400">Online - <%= serverData.players.online %>/<%= serverData.players.max %> Oyuncu</p>
+                        <% } else { %>
+                            <span class="w-3 h-3 bg-red-500 rounded-full mr-2"></span>
+                            <p class="text-red-400">Offline</p>
+                        <% } %>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-gray-400">Aktif Harita</p>
+                    <p class="text-yellow-400 font-bold"><%= serverData.map || 'N/A' %></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Player Data -->
+        <div class="bg-white shadow-lg rounded-lg p-5 overflow-hidden mb-8">
+            <div class="pb-5">
+                <h1 class="border-b-2 border-red-700 text-2xl font-bold text-ellipsis overflow-hidden text-gray-900">
+                    VESSELAM PRO PUBLIC [REVIVE + HEAL BOMB]</h1>
+            </div>
+
+            <div class="grid grid-cols-1 gap-3 overflow-auto">
+                <!-- Counter-Terrorist Team -->
+                <div id="takim-ct">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Counter-Terrorist Takımı</h3>
+                    <table class="w-full">
+                        <thead class="text-white">
+                            <tr>
+                                <th class="rounded-l-md bg-sky-800 p-3 text-center w-3"><span class="p-1 border-b-4 border-red-900">D.</span></th>
+                                <th class="bg-sky-800 py-3 text-left"><span class="p-1">Nick</span></th>
+                                <th class="bg-sky-800 py-3 text-center"><span class="p-1">IP</span></th>
+                                <th class="bg-sky-800 py-3 text-center"><span class="p-1">Vurduğu</span></th>
+                                <th class="bg-sky-800 py-3 text-center"><span class="p-1">Öldüğü</span></th>
+                                <th class="rounded-r-md bg-sky-800 py-3 text-center"><span class="p-1">Süre</span></th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            <% if (ctPlayers && ctPlayers.length > 0) { %>
+                                <% ctPlayers.forEach(player => { %>
+                                    <tr class="border-b-[1px] border-b-gray-400">
+                                        <td class="text-center pt-2 min-w-[10px]">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 m-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" class="text-green-800"></path>
+                                            </svg>
+                                        </td>
+                                        <td class="pt-2 text-ellipsis min-w-[300px] overflow-hidden whitespace-nowrap text-gray-800"><%= player.name %></td>
+                                        <td class="text-center pt-2 min-w-[60px] text-gray-800"><%= player.ip %></td>
+                                        <td class="text-center pt-2 min-w-[20px] text-gray-800"><%= player.kills %></td>
+                                        <td class="text-center pt-2 min-w-[20px] text-gray-800"><%= player.deaths %></td>
+                                        <td class="text-center pt-2 min-w-[20px] text-gray-800"><%= player.time %></td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="6" class="py-4 text-center text-gray-600">Counter-Terrorist takımında oyuncu yok</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Terrorist Team -->
+                <div id="takim-t" class="mt-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Terrorist Takımı</h3>
+                    <table class="w-full">
+                        <thead class="text-white">
+                            <tr>
+                                <th class="rounded-l-md bg-rose-800 p-3 text-center w-3">
+                                    <span class="p-1">D.</span>
+                                </th>
+                                <th class="bg-rose-800 py-3 text-left"><span class="p-1">Nick</span></th>
+                                <th class="bg-rose-800 py-3 text-center"><span class="p-1">IP</span></th>
+                                <th class="bg-rose-800 py-3 text-center"><span class="p-1">Vurduğu</span></th>
+                                <th class="bg-rose-800 py-3 text-center"><span class="p-1">Öldüğü</span></th>
+                                <th class="rounded-r-md bg-rose-800 py-3 text-center"><span class="p-1">Süre</span></th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            <% if (tPlayers && tPlayers.length > 0) { %>
+                                <% tPlayers.forEach(player => { %>
+                                    <tr class="border-b-[1px] border-b-gray-400">
+                                        <td class="text-center pt-2 min-w-[10px]">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 m-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" class="text-green-800"></path>
+                                            </svg>
+                                        </td>
+                                        <td class="pt-2 text-ellipsis min-w-[300px] overflow-hidden whitespace-nowrap text-gray-800"><%= player.name %></td>
+                                        <td class="text-center pt-2 min-w-[60px] text-gray-800"><%= player.ip %></td>
+                                        <td class="text-center pt-2 min-w-[20px] text-gray-800"><%= player.kills %></td>
+                                        <td class="text-center pt-2 min-w-[20px] text-gray-800"><%= player.deaths %></td>
+                                        <td class="text-center pt-2 min-w-[20px] text-gray-800"><%= player.time %></td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="6" class="py-4 text-center text-gray-600">Terrorist takımında oyuncu yok</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Spectators -->
+                <div id="takim-spec" class="mt-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">İzleyiciler</h3>
+                    <table class="w-full">
+                        <thead class="text-white">
+                            <tr>
+                                <th class="rounded-l-md bg-gray-500 p-3 text-center w-3">
+                                    <span class="p-1">D.</span>
+                                </th>
+                                <th class="bg-gray-500 py-3 text-left"><span class="p-1">Nick</span></th>
+                                <th class="bg-gray-500 py-3 text-center"><span class="p-1">IP</span></th>
+                                <th class="bg-gray-500 py-3 text-center"><span class="p-1">Vurduğu</span></th>
+                                <th class="bg-gray-500 py-3 text-center"><span class="p-1">Öldüğü</span></th>
+                                <th class="rounded-r-md bg-gray-500 py-3 text-center"><span class="p-1">Süre</span></th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            <% if (spectators && spectators.length > 0) { %>
+                                <% spectators.forEach(player => { %>
+                                    <tr class="border-b-[1px] border-b-gray-400">
+                                        <td class="text-center pt-2 min-w-[10px]">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 m-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" class="text-red-900"></path>
+                                            </svg>
+                                        </td>
+                                        <td class="pt-2 text-ellipsis min-w-[300px] overflow-hidden whitespace-nowrap text-gray-800"><%= player.name %></td>
+                                        <td class="text-center pt-2 min-w-[60px] text-gray-800"><%= player.ip %></td>
+                                        <td class="text-center pt-2 min-w-[20px] text-gray-800"><%= player.kills %></td>
+                                        <td class="text-center pt-2 min-w-[20px] text-gray-800"><%= player.deaths %></td>
+                                        <td class="text-center pt-2 min-w-[20px] text-gray-800"><%= player.time %></td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="6" class="py-4 text-center text-gray-600">İzleyici yok</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Server Features -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div class="bg-gray-800 rounded-lg shadow-lg p-6 border-l-4 border-red-500 hover:shadow-red-900/20 transition duration-300 transform hover:-translate-y-1">
+                <h2 class="text-xl font-bold text-red-500 border-b-2 border-red-500 pb-2 mb-4">Sunucu Özellikleri</h2>
+                <ul class="space-y-2">
+                    <li class="flex items-center">
+                        <i class="fas fa-heartbeat text-red-500 mr-3"></i>
+                        <span>Revive Sistemi</span>
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-plus-circle text-green-500 mr-3"></i>
+                        <span>Heal Bomb</span>
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-shield-alt text-blue-500 mr-3"></i>
+                        <span>Anti-Cheat Koruması</span>
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-tachometer-alt text-yellow-500 mr-3"></i>
+                        <span>Yüksek Performans</span>
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-users text-purple-500 mr-3"></i>
+                        <span>Aktif Topluluk</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bg-gray-800 rounded-lg shadow-lg p-6 border-l-4 border-yellow-500 hover:shadow-yellow-900/20 transition duration-300 transform hover:-translate-y-1">
+                <h2 class="text-xl font-bold text-yellow-500 border-b-2 border-yellow-500 pb-2 mb-4">Popüler Haritalar</h2>
+                <div class="flex flex-wrap gap-2">
+                    <div class="bg-gray-700 text-yellow-400 px-3 py-1 rounded-md">de_dust2</div>
+                    <div class="bg-gray-700 text-yellow-400 px-3 py-1 rounded-md">de_inferno</div>
+                    <div class="bg-gray-700 text-yellow-400 px-3 py-1 rounded-md">de_mirage</div>
+                    <div class="bg-gray-700 text-yellow-400 px-3 py-1 rounded-md">de_nuke</div>
+                    <div class="bg-gray-700 text-yellow-400 px-3 py-1 rounded-md">de_cbble</div>
+                    <div class="bg-gray-700 text-yellow-400 px-3 py-1 rounded-md">cs_italy</div>
+                    <div class="bg-gray-700 text-yellow-400 px-3 py-1 rounded-md">cs_assault</div>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 rounded-lg shadow-lg p-6 border-l-4 border-green-500 hover:shadow-green-900/20 transition duration-300 transform hover:-translate-y-1">
+                <h2 class="text-xl font-bold text-green-500 border-b-2 border-green-500 pb-2 mb-4">İletişim</h2>
+                <div class="space-y-3">
+                    <div class="flex items-center">
+                        <i class="fas fa-envelope text-green-500 mr-3 w-5"></i>
+                        <span>info@vesselampro.com</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fab fa-discord text-indigo-500 mr-3 w-5"></i>
+                        <span>VESSELAM PRO #1234</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fab fa-steam text-blue-500 mr-3 w-5"></i>
+                        <span>/groups/vesselampro</span>
+                    </div>
+                </div>
+                <div class="flex mt-4 space-x-3">
+                    <a href="#" class="bg-blue-600 hover:bg-blue-700 h-9 w-9 rounded-full flex items-center justify-center transition duration-300">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="bg-blue-400 hover:bg-blue-500 h-9 w-9 rounded-full flex items-center justify-center transition duration-300">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="bg-red-600 hover:bg-red-700 h-9 w-9 rounded-full flex items-center justify-center transition duration-300">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                    <a href="#" class="bg-purple-600 hover:bg-purple-700 h-9 w-9 rounded-full flex items-center justify-center transition duration-300">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-300 py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p>&copy; 2023 VESSELAM PRO PUBLIC. Tüm hakları saklıdır.</p>
+                    <p class="text-sm mt-1">Counter-Strike 1.6 & Counter-Strike, Valve Corporation'ın tescilli markalarıdır.</p>
+                </div>
+                <div class="flex items-center">
+                    <p class="mr-2">Tarafından desteklenmektedir:</p>
+                    <a href="https://csduragi.com" class="text-red-500 hover:text-red-400 font-bold">CSDuragi.com</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/script.js"></script>
+</body>
+</html> 

@@ -1,0 +1,404 @@
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-300 py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p>&copy; 2025 VESSELAM PRO PUBLIC. Tüm hakları saklıdır.</p>
+                    <p class="text-sm mt-1">Counter-Strike 1.6 & Counter-Strike, Valve Corporation'ın tescilli markalarıdır.</p>
+                </div>
+                <div class="flex items-center">
+                    <p class="mr-2">Tarafından desteklenmektedir:</p>
+                    <a href="https://csduragi.com" class="text-red-500 hover:text-red-400 font-bold">CSDuragi.com</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    </div> <!-- Site Content End -->
+
+    <script src="/js/script.js"></script>
+    
+    <!-- Loading Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Site içerik elementlerini al
+            const loadingScreen = document.querySelector('.loading-screen');
+            const siteContent = document.querySelector('.site-content');
+            const loadingBar = document.querySelector('.loading-bar');
+            
+            // Sunucu oturum kimliği - sunucu her yeniden başlatıldığında değişir
+            const serverSessionId = "<%= serverSessionId %>";
+            
+            // LocalStorage kontrolü - ziyaretçi bu sunucu oturumunda daha önce gelmiş mi?
+            const storedSessionId = localStorage.getItem('serverSessionId');
+            const hasVisitedThisSession = (storedSessionId === serverSessionId);
+            
+            console.log("Sunucu oturum kimliği:", serverSessionId);
+            console.log("Kayıtlı oturum kimliği:", storedSessionId);
+            console.log("Bu oturumda ziyaret edildi mi:", hasVisitedThisSession);
+            
+            // İlk ziyaret veya sunucu yeniden başlatılmışsa yükleme ekranını göster
+            if (!hasVisitedThisSession) {
+                // Yükleme ekranını göster
+                loadingScreen.style.display = 'flex';
+                siteContent.classList.remove('visible');
+                
+                // Loadingbar animasyonunu başlat
+                loadingBar.style.animation = 'loadingAnimation 9s linear forwards, gradientShift 3s linear infinite';
+                
+                // 9 saniye sonra yükleme ekranını kaldır
+                setTimeout(function() {
+                    loadingScreen.classList.add('hidden');
+                    siteContent.classList.add('visible');
+                    
+                    // Mevcut sunucu oturum kimliğini kaydet
+                    localStorage.setItem('serverSessionId', serverSessionId);
+                    
+                    console.log("Yükleme ekranı gizlendi, oturum kimliği kaydedildi:", serverSessionId);
+                }, 9000);
+            } else {
+                // Daha önce bu sunucu oturumunda ziyaret edilmişse, yükleme ekranını gizle
+                loadingScreen.style.display = 'none';
+                siteContent.classList.add('visible');
+                console.log("Önceki ziyaret tespit edildi, yükleme ekranı atlandı.");
+            }
+            
+            // Sunucu verilerini ve oyuncu verilerini yükle
+            fetchServerData();
+        });
+        
+        // Server verilerini yüklemek için fetch API kullanımı
+        function fetchServerData() {
+            // API endpoint kontrolü - link parametrelerinden gelen verileri kontrol et
+            let serverIP = getParameterByName('serverIP');
+            let apiUrl = '/api/server-status';
+            
+            // Eğer URL'de serverIP parametresi varsa, API url'sine ekle
+            if (serverIP) {
+                apiUrl += '?serverIP=' + encodeURIComponent(serverIP);
+            }
+            
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Sunucu verisi alınamadı: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Sunucu verileri başarıyla alındı:", data);
+                    // Veriyi global olarak saklayıp, sayfa yeniden yüklenmeden erişilebilir kılalım
+                    window.serverData = data;
+                    // UI'ı güncelle
+                    updateServerUI(data);
+                    // Oyuncu verilerini güncelle
+                    updatePlayerData(data);
+                })
+                .catch(error => {
+                    console.error('Veri çekme hatası:', error);
+                    // Hata durumunda varsayılan değerleri göster
+                    showDefaultServerValues();
+                });
+        }
+        
+        // URL'den parametre alma yardımcı fonksiyonu
+        function getParameterByName(name, url = window.location.href) {
+            name = name.replace(/[\[\]]/g, '\\$&');
+            const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+        
+        // UI güncelleme fonksiyonu
+        function updateServerUI(data) {
+            if (!data) return;
+            
+            // Server durumu elementi
+            const serverStatusBox = document.querySelector('.server-status-box');
+            if (!serverStatusBox) return;
+            
+            // Server statusunu güncelle
+            const statusElement = serverStatusBox.querySelector('.flex.items-center');
+            if (statusElement && data.status) {
+                if (data.status === 'online') {
+                    const playerCount = data.players ? `${data.players.online}/${data.players.max} Oyuncu` : '0/32 Oyuncu';
+                    statusElement.innerHTML = `
+                        <span class="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                        <p class="text-green-400">Online - ${playerCount}</p>
+                    `;
+                } else {
+                    statusElement.innerHTML = `
+                        <span class="w-3 h-3 bg-red-500 rounded-full mr-2"></span>
+                        <p class="text-red-400">Offline</p>
+                    `;
+                }
+            }
+            
+            // Aktif haritayı güncelle
+            const mapElement = serverStatusBox.querySelector('.text-right p.text-yellow-400');
+            if (mapElement && data.map) {
+                mapElement.textContent = data.map;
+            }
+            
+            // Server IP'yi güncelle
+            const serverIPElement = document.querySelector('.server-ip');
+            if (serverIPElement && data.serverIP) {
+                serverIPElement.textContent = data.serverIP;
+            }
+            
+            // Bağlan butonunu güncelle
+            const connectButton = document.querySelector('a[href^="steam://connect/"]');
+            if (connectButton && data.serverIP) {
+                connectButton.href = `steam://connect/${data.serverIP}`;
+            }
+        }
+        
+        // Oyuncu verilerini güncelleme fonksiyonu
+        function updatePlayerData(data) {
+            if (!data) {
+                console.log("Veri bulunamadı");
+                return;
+            }
+            
+            console.log("Sunucu verileri:", data);
+            
+            // Oyuncular listesini al (API'den doğrudan gelen ctPlayers/tPlayers/spectators kullan)
+            const ctPlayers = data.ctPlayers || [];
+            const tPlayers = data.tPlayers || [];
+            const spectators = data.spectators || [];
+            
+            console.log(`Oyuncu verileri: CT=${ctPlayers.length}, T=${tPlayers.length}, SPEC=${spectators.length}`);
+            
+            // CT Takımı
+            const ctTeamElement = document.getElementById('takim-ct');
+            const tTeamElement = document.getElementById('takim-t');
+            const specTeamElement = document.getElementById('takim-spec');
+            
+            // Takım elementleri yoksa sayfa oyuncu sayfası değildir
+            if (!ctTeamElement && !tTeamElement && !specTeamElement) {
+                console.log("Oyuncu tabloları bulunamadı - muhtemelen oyuncu sayfasında değiliz");
+                return;
+            }
+            
+            // Takım tablolarını güncelle
+            updateTeamTable(ctTeamElement, ctPlayers, 'CT');
+            updateTeamTable(tTeamElement, tPlayers, 'T');
+            updateTeamTable(specTeamElement, spectators, 'SPEC');
+            
+            // İstatistik panellerini güncelle
+            updateStatPanels(ctPlayers, tPlayers);
+            
+            // Takım boş uyarılarını güncelle
+            const tables = [
+                { element: ctTeamElement, players: ctPlayers, name: 'CT' },
+                { element: tTeamElement, players: tPlayers, name: 'T' },
+                { element: specTeamElement, players: spectators, name: 'SPEC' }
+            ];
+            
+            tables.forEach(table => {
+                if (table.element) {
+                    const noPlayersMessage = table.element.querySelector('.no-players-message');
+                    if (table.players.length === 0) {
+                        // Takımda oyuncu yoksa, mesaj göster
+                        if (!noPlayersMessage) {
+                            const message = document.createElement('div');
+                            message.className = 'no-players-message p-4 text-center text-gray-500';
+                            message.innerHTML = `<i class="fas fa-user-slash mr-2"></i>${table.name} Takımında oyuncu yok.`;
+                            table.element.appendChild(message);
+                        }
+                    } else {
+                        // Takımda oyuncu varsa, mesajı kaldır
+                        if (noPlayersMessage) {
+                            noPlayersMessage.remove();
+                        }
+                    }
+                }
+            });
+        }
+        
+        // İstatistik panellerini güncelleme fonksiyonu
+        function updateStatPanels(ctPlayers, tPlayers) {
+            // Tüm oyuncuları birleştir
+            const allPlayers = [...(ctPlayers || []), ...(tPlayers || [])];
+            
+            // Top Players panelini güncelle (skor bazlı)
+            updateTopPlayersList(allPlayers, 'top-players-list', 'score');
+            
+            // Top Killers panelini güncelle (kill bazlı)
+            updateTopPlayersList(allPlayers, 'top-killers-list', 'kills');
+            
+            // Best K/D panelini güncelle
+            updateKDRatioList(allPlayers, 'top-kd-list');
+        }
+        
+        // En iyi oyuncu listesini güncelle
+        function updateTopPlayersList(players, listId, sortKey) {
+            const list = document.getElementById(listId);
+            if (!list) return;
+            
+            // Listeyi temizle
+            list.innerHTML = '';
+            
+            // Oyuncu yoksa mesaj göster
+            if (!players || players.length === 0) {
+                list.innerHTML = '<li class="text-center p-3 text-gray-400">Veri yok</li>';
+                return;
+            }
+            
+            // Oyuncuları sırala ve ilk 5'i al
+            const sortedPlayers = [...players].sort((a, b) => (b[sortKey] || 0) - (a[sortKey] || 0)).slice(0, 5);
+            
+            // Her oyuncu için bir liste öğesi oluştur
+            const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+            sortedPlayers.forEach((player, index) => {
+                const listItem = document.createElement('li');
+                listItem.className = 'flex items-center justify-between p-2 bg-gray-600 rounded-md';
+                
+                const valueText = sortKey === 'score' ? 'puan' : 'kill';
+                const valueColor = sortKey === 'score' ? 'text-yellow-400' : 'text-green-400';
+                
+                listItem.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="text-xl mr-2">${medals[index]}</span>
+                        <span>${player.name}</span>
+                    </div>
+                    <div class="${valueColor} font-bold">${player[sortKey] || 0} ${valueText}</div>
+                `;
+                
+                list.appendChild(listItem);
+            });
+        }
+        
+        // K/D oranı listesini güncelle
+        function updateKDRatioList(players, listId) {
+            const list = document.getElementById(listId);
+            if (!list) return;
+            
+            // Listeyi temizle
+            list.innerHTML = '';
+            
+            // Oyuncu yoksa mesaj göster
+            if (!players || players.length === 0) {
+                list.innerHTML = '<li class="text-center p-3 text-gray-400">Veri yok</li>';
+                return;
+            }
+            
+            // Ölümü 0'dan büyük olan oyuncuları filtrele, KD oranı hesapla, sırala ve ilk 5'i al
+            const playersWithKD = players
+                .filter(p => p.deaths > 0)
+                .map(p => ({...p, kd: (p.kills || 0) / (p.deaths || 1)}))
+                .sort((a, b) => b.kd - a.kd)
+                .slice(0, 5);
+            
+            // Eğer hiç uygun oyuncu yoksa mesaj göster
+            if (playersWithKD.length === 0) {
+                list.innerHTML = '<li class="text-center p-3 text-gray-400">Veri yok</li>';
+                return;
+            }
+            
+            // Her oyuncu için bir liste öğesi oluştur
+            const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+            playersWithKD.forEach((player, index) => {
+                const listItem = document.createElement('li');
+                listItem.className = 'flex items-center justify-between p-2 bg-gray-600 rounded-md';
+                
+                listItem.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="text-xl mr-2">${medals[index]}</span>
+                        <span>${player.name}</span>
+                    </div>
+                    <div class="text-blue-400 font-bold">${player.kd.toFixed(2)}</div>
+                `;
+                
+                list.appendChild(listItem);
+            });
+        }
+        
+        // Takım tablosunu güncelleme
+        function updateTeamTable(teamElement, players, teamName) {
+            if (!teamElement) return;
+            
+            const tableBody = teamElement.querySelector('tbody');
+            if (!tableBody) {
+                console.error(`${teamName} takımı için tablo gövdesi bulunamadı`);
+                return;
+            }
+            
+            // Tabloyu temizle
+            tableBody.innerHTML = '';
+            
+            // Takımda oyuncu varsa
+            if (players.length > 0) {
+                // Oyuncuları tabloya ekle
+                players.forEach((player, index) => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-600 border-b border-gray-600 last:border-0';
+                    
+                    const kdRatio = player.deaths > 0 ? (player.kills / player.deaths).toFixed(2) : player.kills || '0';
+                    
+                    row.innerHTML = `
+                        <td class="text-center p-2">${index + 1}</td>
+                        <td class="p-2 flex items-center">
+                            <span class="w-2 h-2 bg-green-500 rounded-full inline-block mr-2"></span>
+                            ${player.name}
+                        </td>
+                        <td class="text-center p-2">${player.score || 0}</td>
+                        <td class="text-center p-2 text-green-400">${player.kills || 0}</td>
+                        <td class="text-center p-2 text-red-400">${player.deaths || 0}</td>
+                        <td class="text-center p-2">
+                            <span class="${kdRatio >= 1 ? 'text-green-400' : 'text-red-400'}">${kdRatio}</span>
+                        </td>
+                        <td class="text-center p-2">
+                            <span class="${player.ping < 100 ? 'text-green-400' : (player.ping < 200 ? 'text-yellow-400' : 'text-red-400')}">
+                                ${player.ping || 0} ms
+                            </span>
+                        </td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+        
+        // KD oranı hesaplama
+        function calculateKD(kills, deaths) {
+            kills = parseInt(kills || 0);
+            deaths = parseInt(deaths || 0);
+            
+            if (deaths === 0) return kills.toFixed(2);
+            return (kills / deaths).toFixed(2);
+        }
+        
+        // Varsayılan değerleri gösterme fonksiyonu
+        function showDefaultServerValues() {
+            // Varsayılan değerleri göster
+            const serverStatusBox = document.querySelector('.server-status-box');
+            if (serverStatusBox) {
+                const statusElement = serverStatusBox.querySelector('.flex.items-center');
+                if (statusElement) {
+                    statusElement.innerHTML = `
+                        <span class="w-3 h-3 bg-red-500 rounded-full mr-2"></span>
+                        <p class="text-red-400">Offline</p>
+                    `;
+                }
+                
+                const mapElement = serverStatusBox.querySelector('.text-right p.text-yellow-400');
+                if (mapElement) {
+                    mapElement.textContent = 'de_dust2';
+                }
+            }
+            
+            // Oyuncu tablolarını güncelle - boş olarak
+            updatePlayerData({
+                ctPlayers: [],
+                tPlayers: [],
+                spectators: []
+            });
+        }
+    </script>
+</body>
+</html> 

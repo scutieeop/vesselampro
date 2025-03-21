@@ -1,0 +1,81 @@
+<%- include('partials/header') %>
+
+<!-- Stats Page Content -->
+<div class="bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+    <h2 class="text-2xl font-bold text-red-500 border-b-2 border-red-500 pb-2 mb-6">
+        <i class="fas fa-chart-bar mr-2"></i> Sunucu İstatistikleri
+    </h2>
+    
+    <!-- Enhanced Server Info Section -->
+    <div class="mb-8">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
+            <div class="flex items-center mb-4 md:mb-0">
+                <div class="bg-red-600/20 p-3 rounded-full mr-3">
+                    <i class="fas fa-server text-red-500 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white">
+                    Sunucu Bilgileri
+                </h3>
+            </div>
+            <span class="bg-red-600 text-white text-xs px-3 py-2 rounded-full shadow-lg flex items-center">
+                <i class="fas fa-clock mr-2"></i> Son Güncelleme: <%= new Date().toLocaleTimeString('tr-TR') %> 
+                <span class="hidden md:inline ml-1">- Session: <%= serverSessionId %></span>
+            </span>
+        </div>
+        
+        <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg shadow-lg overflow-hidden border border-gray-700">
+            <!-- Server name header -->
+            <div class="bg-gradient-to-r from-red-900/30 to-red-700/20 p-5 border-b border-gray-700">
+                <h3 class="text-2xl font-bold text-white text-center">
+                    <%= serverData.serverName %>
+                </h3>
+            </div>
+            
+            <!-- Server info cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+                <!-- Map Info -->
+                <div class="bg-gray-800/50 p-5 rounded-lg border border-gray-700 hover:border-red-500/30 transition-colors flex flex-col items-center">
+                    <div class="bg-gradient-to-br from-blue-600/20 to-blue-800/20 p-4 rounded-full mb-4">
+                        <i class="fas fa-map text-blue-400 text-3xl"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-white mb-2">Aktif Harita</h4>
+                    <p class="text-xl font-bold text-blue-400"><%= serverData.map %></p>
+                </div>
+                
+                <!-- Player Count Info -->
+                <div class="bg-gray-800/50 p-5 rounded-lg border border-gray-700 hover:border-red-500/30 transition-colors flex flex-col items-center">
+                    <div class="bg-gradient-to-br from-green-600/20 to-green-800/20 p-4 rounded-full mb-4">
+                        <i class="fas fa-users text-green-400 text-3xl"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-white mb-2">Oyuncu Sayısı</h4>
+                    <div class="flex items-center">
+                        <p class="text-xl font-bold text-green-400"><%= serverData.players.online %></p>
+                        <span class="text-gray-400 mx-2">/</span>
+                        <p class="text-lg text-gray-300"><%= serverData.players.max %></p>
+                    </div>
+                    <p class="text-sm text-gray-400 mt-1">
+                        <i class="fas fa-eye mr-1"></i> <%= spectators.length %> İzleyici
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Server IP and Connect button -->
+            <div class="bg-gray-900 p-6 border-t border-gray-700">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="mb-4 md:mb-0 text-center md:text-left">
+                        <p class="text-sm text-gray-400 mb-1">Sunucu IP Adresi:</p>
+                        <p class="text-xl font-mono font-bold text-yellow-400 bg-gray-800/50 px-4 py-2 rounded-md">
+                            <%= serverData.serverIP %>
+                        </p>
+                    </div>
+                    <a href="steam://connect/<%= serverData.serverIP %>" class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg flex items-center justify-center transition-transform duration-300 transform hover:scale-105">
+                        <i class="fas fa-gamepad mr-2"></i>
+                        Sunucuya Bağlan
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %> 

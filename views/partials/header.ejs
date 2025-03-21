@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= serverData.serverName %></title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Loading Screen -->
+    <div class="loading-screen" style="display: none;">
+        <!-- Loading Video -->
+        <video autoplay muted loop playsinline class="loading-video" preload="auto" poster="/images/vesselam-poster.jpg">
+            <source src="/images/vesselam.mp4" type="video/mp4" quality="high">
+        </video>
+        
+        <div class="loading-bar-container">
+            <div class="loading-bar"></div>
+        </div>
+        <div class="loading-text">
+            <div>VESSELAM PRO PUBLİC</div>
+            <div class="mt-2">WEB SİTESİ YÜKLENİYOR..</div>
+        </div>
+    </div>
+
+    <!-- Site Content -->
+    <div class="site-content visible">
+        <!-- Animasyonlu Arka Plan Elementleri -->
+        <div class="bg-animation">
+            <div class="bg-pattern"></div>
+            <div class="bg-glow"></div>
+        </div>
+
+        <!-- Header Section -->
+        <header class="bg-gray-800 shadow-lg p-4">
+            <div class="container mx-auto flex flex-col md:flex-row items-center justify-between">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <div>
+                        <h1 class="text-2xl font-bold text-red-500">VESSELAM PRO PUBLIC</h1>
+                        <p class="text-sm text-green-400">[REVIVE + HEAL BOMB]</p>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4">
+                    <div class="text-center md:text-right">
+                        <p class="text-gray-300"><i class="fas fa-server mr-2"></i>Sunucu IP:</p>
+                        <p class="text-yellow-400 font-mono font-bold server-ip"><%= typeof serverData !== 'undefined' && serverData.serverIP ? serverData.serverIP : '185.126.177.60:27015' %></p>
+                    </div>
+                    <a href="steam://connect/<%= typeof serverData !== 'undefined' && serverData.serverIP ? serverData.serverIP : '185.126.177.60:27015' %>" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105">
+                        <i class="fas fa-play-circle mr-2"></i>Hemen Bağlan
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Menu -->
+        <nav class="bg-gray-700 shadow-md">
+            <div class="container mx-auto">
+                <ul class="flex flex-wrap">
+                    <li class="<%= activePage === 'home' ? 'bg-gray-600' : '' %> hover:bg-gray-600 transition-colors">
+                        <a href="/" class="block px-4 py-3 text-white font-medium">
+                            <i class="fas fa-home mr-2"></i>Ana Sayfa
+                        </a>
+                    </li>
+                    <li class="<%= activePage === 'players' ? 'bg-gray-600' : '' %> hover:bg-gray-600 transition-colors">
+                        <a href="/players" class="block px-4 py-3 text-white font-medium">
+                            <i class="fas fa-users mr-2"></i>Oyuncular
+                        </a>
+                    </li>
+                    <li class="<%= activePage === 'stats' ? 'bg-gray-600' : '' %> hover:bg-gray-600 transition-colors">
+                        <a href="/stats" class="block px-4 py-3 text-white font-medium">
+                            <i class="fas fa-chart-bar mr-2"></i>İstatistikler
+                        </a>
+                    </li>
+                    <li class="<%= activePage === 'weapons' ? 'bg-gray-600' : '' %> hover:bg-gray-600 transition-colors">
+                        <a href="/weapons" class="block px-4 py-3 text-white font-medium">
+                            <i class="fas fa-crosshairs mr-2"></i>Silah Modelleri
+                        </a>
+                    </li>
+                    
+                    <li class="<%= activePage === 'maps' ? 'bg-gray-600' : '' %> hover:bg-gray-600 transition-colors">
+                        <a href="/maps" class="block px-4 py-3 text-white font-medium">
+                            <i class="fas fa-map mr-2"></i>Haritalar
+                        </a>
+                    </li>
+                    
+                    <li class="<%= activePage === 'about' ? 'bg-gray-600' : '' %> hover:bg-gray-600 transition-colors">
+                        <a href="/about" class="block px-4 py-3 text-white font-medium">
+                            <i class="fas fa-info-circle mr-2"></i>Hakkında
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Server Status Box -->
+        <div class="container mx-auto py-4 px-4">
+            <div class="bg-gray-800 rounded-lg shadow-lg p-4 mb-4 server-status-box">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-red-500 border-b-2 border-red-500 pb-2 mb-2">Sunucu Durumu</h2>
+                        <div class="flex items-center">
+                            <% if (typeof serverData !== 'undefined' && serverData.status === 'online') { %>
+                                <span class="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                                <p class="text-green-400">Online - <%= serverData.players ? serverData.players.online + '/' + serverData.players.max + ' Oyuncu' : '0/32 Oyuncu' %></p>
+                            <% } else { %>
+                                <span class="w-3 h-3 bg-red-500 rounded-full mr-2"></span>
+                                <p class="text-red-400">Offline</p>
+                            <% } %>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-gray-400">Aktif Harita</p>
+                        <p class="text-yellow-400 font-bold"><%= typeof serverData !== 'undefined' && serverData.map ? serverData.map : 'de_dust2' %></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Container -->
+        <main class="container mx-auto py-4 px-4"> 

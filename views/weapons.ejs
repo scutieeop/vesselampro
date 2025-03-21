@@ -1,0 +1,245 @@
+<%- include('partials/header') %>
+
+<!-- Weapons Page Content -->
+<div class="bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-red-500 border-b-2 border-red-500 pb-2">
+            <i class="fas fa-crosshairs mr-2"></i> Silah Modelleri
+        </h2>
+        <span class="bg-red-600 text-white text-xs px-3 py-1 rounded-full shadow-lg animate-pulse">
+            <i class="fas fa-fire mr-1"></i> ÖZEL MODELLER
+        </span>
+    </div>
+
+    <!-- AK-47 SECTION -->
+    <div class="mb-10 border-t-4 border-yellow-600 pt-2 rounded-t-sm">
+        <div class="flex items-center mb-6 bg-gradient-to-r from-yellow-900 to-gray-800 px-4 py-3 rounded-t-lg">
+            <i class="fas fa-fire text-yellow-500 text-2xl mr-3"></i>
+            <div>
+                <h3 class="text-xl font-bold text-yellow-400">AK-47 Modelleri</h3>
+                <p class="text-gray-400 text-sm">Profesyonel oyunculara özel silah tasarımları</p>
+            </div>
+        </div>
+
+        <div class="bg-gray-700 p-6 rounded-b-lg shadow-inner">
+            <p class="mb-5 text-gray-300">CS 1.6 sunucumuzda kullanabileceğiniz özel AK-47 model seçenekleri. Model seçimi için oyun içinde <code class="bg-gray-800 text-yellow-400 px-2 py-1 rounded shadow-sm">/skin</code> komutunu kullanabilirsiniz.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+                <% if (weaponModels.ak47 && weaponModels.ak47.length > 0) { %>
+                    <% weaponModels.ak47.forEach((model, index) => { %>
+                    <!-- AK-47 Model <%= index + 1 %> -->
+                    <div class="bg-gradient-to-b from-gray-800 to-black rounded-lg overflow-hidden shadow-lg transform transition-transform duration-300 hover:-translate-y-2 group">
+                        <div class="bg-gradient-to-b from-gray-700 to-gray-900 w-full h-64 relative overflow-hidden flex items-center justify-center">
+                            <img src="<%= model.path %>" alt="AK-47 <%= model.name %>" class="h-56 w-56 object-contain object-center transform transition-transform duration-500 group-hover:scale-105">
+                        </div>
+                        <div class="p-4 bg-gradient-to-r from-gray-900 to-gray-800 border-t border-gray-700">
+                            <h4 class="font-bold text-lg text-yellow-400 text-center">AK-47 <%= model.name %></h4>
+                            <div class="flex justify-center items-center mt-3">
+                                <span class="text-gray-400 text-sm mr-3 bg-gray-800 px-2 py-1 rounded-lg"><i class="fas fa-hashtag mr-1"></i><%= index + 1 %></span>
+                                <span class="bg-purple-600 text-white text-xs px-3 py-1 rounded-full shadow-sm">VIP İÇİNDİR</span>
+                            </div>
+                        </div>
+                    </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="col-span-3 text-center py-10 bg-gray-800/50 rounded-lg">
+                        <i class="fas fa-exclamation-circle text-yellow-500 text-4xl mb-3"></i>
+                        <p class="text-gray-400">Henüz AK-47 modeli eklenmemiş.</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <!-- M4A1 SECTION -->
+    <div class="mb-10 border-t-4 border-blue-600 pt-2 rounded-t-sm">
+        <div class="flex items-center mb-6 bg-gradient-to-r from-blue-900 to-gray-800 px-4 py-3 rounded-t-lg">
+            <i class="fas fa-fire text-blue-500 text-2xl mr-3"></i>
+            <div>
+                <h3 class="text-xl font-bold text-blue-400">M4A1 Modelleri</h3>
+                <p class="text-gray-400 text-sm">CT ekibine özel silah tasarımları</p>
+            </div>
+        </div>
+
+        <div class="bg-gray-700 p-6 rounded-b-lg shadow-inner">
+            <p class="mb-5 text-gray-300">CS 1.6 sunucumuzda kullanabileceğiniz özel M4A1 model seçenekleri. Model seçimi için oyun içinde <code class="bg-gray-800 text-yellow-400 px-2 py-1 rounded shadow-sm">/skin</code> komutunu kullanabilirsiniz.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+                <% if (weaponModels.m4a1 && weaponModels.m4a1.length > 0) { %>
+                    <% weaponModels.m4a1.forEach((model, index) => { %>
+                    <!-- M4A1 Model <%= index + 1 %> -->
+                    <div class="bg-gradient-to-b from-gray-800 to-black rounded-lg overflow-hidden shadow-lg transform transition-transform duration-300 hover:-translate-y-2 group">
+                        <div class="bg-gradient-to-b from-gray-700 to-gray-900 w-full h-64 relative overflow-hidden flex items-center justify-center">
+                            <img src="<%= model.path %>" alt="M4A1 <%= model.name %>" class="h-56 w-56 object-contain object-center transform transition-transform duration-500 group-hover:scale-105">
+                        </div>
+                        <div class="p-4 bg-gradient-to-r from-gray-900 to-gray-800 border-t border-gray-700">
+                            <h4 class="font-bold text-lg text-blue-400 text-center">M4A1 <%= model.name %></h4>
+                            <div class="flex justify-center items-center mt-3">
+                                <span class="text-gray-400 text-sm mr-3 bg-gray-800 px-2 py-1 rounded-lg"><i class="fas fa-hashtag mr-1"></i><%= index + 1 %></span>
+                                <span class="bg-purple-600 text-white text-xs px-3 py-1 rounded-full shadow-sm">VIP İÇİNDİR</span>
+                            </div>
+                        </div>
+                    </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="col-span-3 text-center py-10 bg-gray-800/50 rounded-lg">
+                        <i class="fas fa-exclamation-circle text-blue-500 text-4xl mb-3"></i>
+                        <p class="text-gray-400">Henüz M4A1 modeli eklenmemiş.</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <!-- AWP SECTION -->
+    <div class="mb-10 border-t-4 border-purple-600 pt-2 rounded-t-sm">
+        <div class="flex items-center mb-6 bg-gradient-to-r from-purple-900 to-gray-800 px-4 py-3 rounded-t-lg">
+            <i class="fas fa-fire text-purple-500 text-2xl mr-3"></i>
+            <div>
+                <h3 class="text-xl font-bold text-purple-400">AWP Modelleri</h3>
+                <p class="text-gray-400 text-sm">Keskin nişancılar için özel tasarımlar</p>
+            </div>
+        </div>
+
+        <div class="bg-gray-700 p-6 rounded-b-lg shadow-inner">
+            <p class="mb-5 text-gray-300">CS 1.6 sunucumuzda kullanabileceğiniz özel AWP model seçenekleri. Model seçimi için oyun içinde <code class="bg-gray-800 text-yellow-400 px-2 py-1 rounded shadow-sm">/skin</code> komutunu kullanabilirsiniz.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+                <% if (weaponModels.awp && weaponModels.awp.length > 0) { %>
+                    <% weaponModels.awp.forEach((model, index) => { %>
+                    <!-- AWP Model <%= index + 1 %> -->
+                    <div class="bg-gradient-to-b from-gray-800 to-black rounded-lg overflow-hidden shadow-lg transform transition-transform duration-300 hover:-translate-y-2 group">
+                        <div class="bg-gradient-to-b from-gray-700 to-gray-900 w-full h-64 relative overflow-hidden flex items-center justify-center">
+                            <img src="<%= model.path %>" alt="AWP <%= model.name %>" class="h-56 w-56 object-contain object-center transform transition-transform duration-500 group-hover:scale-105">
+                        </div>
+                        <div class="p-4 bg-gradient-to-r from-gray-900 to-gray-800 border-t border-gray-700">
+                            <h4 class="font-bold text-lg text-purple-400 text-center">AWP <%= model.name %></h4>
+                            <div class="flex justify-center items-center mt-3">
+                                <span class="text-gray-400 text-sm mr-3 bg-gray-800 px-2 py-1 rounded-lg"><i class="fas fa-hashtag mr-1"></i><%= index + 1 %></span>
+                                <span class="bg-purple-600 text-white text-xs px-3 py-1 rounded-full shadow-sm">VIP İÇİNDİR</span>
+                            </div>
+                        </div>
+                    </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="col-span-3 text-center py-10 bg-gray-800/50 rounded-lg">
+                        <i class="fas fa-exclamation-circle text-purple-500 text-4xl mb-3"></i>
+                        <p class="text-gray-400">Henüz AWP modeli eklenmemiş.</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <!-- BIÇAK SECTION -->
+    <div class="mb-10 border-t-4 border-red-600 pt-2 rounded-t-sm">
+        <div class="flex items-center mb-6 bg-gradient-to-r from-red-900 to-gray-800 px-4 py-3 rounded-t-lg">
+            <i class="fas fa-khanda text-red-500 text-2xl mr-3"></i>
+            <div>
+                <h3 class="text-xl font-bold text-red-400">Bıçak Modelleri</h3>
+                <p class="text-gray-400 text-sm">Etkileyici yakın dövüş silahları</p>
+            </div>
+        </div>
+
+        <div class="bg-gray-700 p-6 rounded-b-lg shadow-inner">
+            <p class="mb-5 text-gray-300">CS 1.6 sunucumuzda kullanabileceğiniz özel bıçak model seçenekleri. Model seçimi için oyun içinde <code class="bg-gray-800 text-yellow-400 px-2 py-1 rounded shadow-sm">/bicak</code> komutunu kullanabilirsiniz.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+                <% if (weaponModels.bicak && weaponModels.bicak.length > 0) { %>
+                    <% weaponModels.bicak.forEach((model, index) => { %>
+                    <!-- Bıçak Model <%= index + 1 %> -->
+                    <div class="bg-gradient-to-b from-gray-800 to-black rounded-lg overflow-hidden shadow-lg transform transition-transform duration-300 hover:-translate-y-2 group">
+                        <div class="bg-gradient-to-b from-gray-700 to-gray-900 w-full h-64 relative overflow-hidden flex items-center justify-center">
+                            <img src="<%= model.path %>" alt="Bıçak <%= model.name %>" class="h-56 w-56 object-contain object-center transform transition-transform duration-500 group-hover:scale-105">
+                        </div>
+                        <div class="p-4 bg-gradient-to-r from-gray-900 to-gray-800 border-t border-gray-700">
+                            <h4 class="font-bold text-lg text-red-400 text-center">Bıçak <%= model.name %></h4>
+                            <div class="flex justify-center items-center mt-3">
+                                <span class="text-gray-400 text-sm mr-3 bg-gray-800 px-2 py-1 rounded-lg"><i class="fas fa-hashtag mr-1"></i><%= index + 1 %></span>
+                                <span class="bg-green-600 text-white text-xs px-3 py-1 rounded-full shadow-sm">ÜCRETSİZ</span>
+                            </div>
+                        </div>
+                    </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="col-span-3 text-center py-10 bg-gray-800/50 rounded-lg">
+                        <i class="fas fa-exclamation-circle text-red-500 text-4xl mb-3"></i>
+                        <p class="text-gray-400">Henüz bıçak modeli eklenmemiş.</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-10">
+        <div class="flex items-center mb-0 bg-gradient-to-r from-blue-900 to-blue-800 px-4 py-3 rounded-t-lg shadow-md">
+            <i class="fas fa-info-circle text-blue-400 text-2xl mr-3"></i>
+            <h3 class="text-xl font-bold text-white">Nasıl Kullanılır?</h3>
+        </div>
+
+        <div class="bg-blue-900/20 p-6 rounded-b-lg shadow-inner border-t border-blue-700/30">
+            <div class="bg-gray-800/50 p-5 rounded-lg">
+                <div class="text-center mb-6">
+                    <h4 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-red-400 to-purple-400 pb-1 inline-block">
+                        <i class="fas fa-crown text-yellow-500 mr-2"></i> ADMIN & VIP Ayrıcalığı
+                    </h4>
+                    <div class="h-1 w-60 bg-gradient-to-r from-purple-500 via-red-500 to-purple-500 rounded mx-auto"></div>
+                    <p class="text-gray-300 mt-4 max-w-2xl mx-auto">
+                        <span class="text-yellow-400 font-bold">AK-47, M4A1 ve AWP</span> silah skinleri <span class="text-purple-400 font-bold">ADMINLER</span> ve <span class="text-purple-400 font-bold">VIP oyuncularımız</span> için özel olarak tasarlanmıştır. 
+                        VIP ayrıcalıklarına erişim hakkı kazanmak için TeamSpeak3 adresimize giriş yapabilirsiniz.
+                    </p>
+                    <p class="text-gray-300 mt-3 max-w-2xl mx-auto">
+                        <span class="text-red-400 font-bold">Bıçak modelleri</span> ise tüm oyuncularımız için <span class="text-green-400 font-bold">ÜCRETSİZ</span> olarak sunulmaktadır!
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- Weapon Commands -->
+                    <div class="bg-gray-700/50 p-5 rounded-lg border border-purple-900/30">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-bookmark text-purple-400 text-xl mr-3"></i>
+                            <h5 class="font-bold text-lg text-white">VIP Silah Skin Komutları</h5>
+                        </div>
+                        <p class="text-gray-300 mb-3">AK-47, M4A1 ve AWP modelleri için:</p>
+                        <div class="bg-gray-800 p-3 rounded-lg mb-4 flex items-center">
+                            <span class="bg-purple-800 h-7 w-7 flex items-center justify-center rounded-full mr-3 text-white text-sm">1</span>
+                            <code class="text-yellow-400 font-mono text-lg">/skin</code>
+                        </div>
+                        <p class="text-gray-400 text-sm">* VIP oyuncular için özel komut</p>
+                    </div>
+
+                    <!-- Knife Commands -->
+                    <div class="bg-gray-700/50 p-5 rounded-lg border border-red-900/30">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-khanda text-red-400 text-xl mr-3"></i>
+                            <h5 class="font-bold text-lg text-white">Ücretsiz Bıçak Skin Komutları</h5>
+                        </div>
+                        <p class="text-gray-300 mb-3">Tüm oyuncular için bıçak modelleri:</p>
+                        <div class="bg-gray-800 p-3 rounded-lg mb-4 flex items-center">
+                            <span class="bg-red-800 h-7 w-7 flex items-center justify-center rounded-full mr-3 text-white text-sm">1</span>
+                            <code class="text-yellow-400 font-mono text-lg">/bicak</code>
+                        </div>
+                        <p class="text-gray-400 text-sm">* Herkes kullanabilir - tamamen ücretsiz!</p>
+                    </div>
+                </div>
+
+                <div class="bg-gray-700/50 p-5 rounded-lg border border-blue-900/30 mt-6">
+                    <div class="flex flex-col md:flex-row items-center justify-center gap-6">
+                        <div class="bg-gray-800 p-4 rounded-lg flex items-center shadow-lg">
+                            <i class="fab fa-teamspeak text-blue-400 text-3xl mr-3"></i>
+                            <div>
+                                <p class="text-white font-bold">TeamSpeak3 Adresimiz</p>
+                                <p class="text-blue-400 font-mono">Vesselampro</p>
+                            </div>
+                        </div>
+                        <a href="ts3server://Vesselampro" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 px-6 rounded-lg transition-all duration-300 flex items-center">
+                            <i class="fas fa-headset mr-2"></i> Hemen Bağlan
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %> 

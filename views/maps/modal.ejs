@@ -1,0 +1,166 @@
+<!-- Modal içeriği - layout kullanılmadan render edilir -->
+<div class="overflow-hidden rounded-lg">
+  <!-- Tabs -->
+  <div class="flex border-b border-gray-700">
+    <button class="modal-tab-btn py-3 px-5 text-center <%= activeTab === 'details' ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300' %>" data-tab="mapDetails">
+      Harita Detayları
+    </button>
+    <button class="modal-tab-btn py-3 px-5 text-center <%= activeTab === 'comment' ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300' %>" data-tab="mapComments">
+      Yorumlar (<span id="modalCommentCount"><%= comments.length %></span>)
+    </button>
+  </div>
+  
+  <!-- Modal İçeriği -->
+  <div>
+    <!-- Harita Detayları -->
+    <div id="mapDetails" class="modal-tab-content <%= activeTab === 'details' ? '' : 'hidden' %>">
+      <div class="relative">
+        <img src="<%= map.imageUrl %>" alt="<%= map.name %>" class="w-full h-64 object-cover">
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-gray-800/90"></div>
+        
+        <div class="absolute top-4 right-4 flex gap-2">
+          <% if (map.isOfficial) { %>
+            <span class="bg-blue-900/70 text-white text-xs px-2 py-1 rounded-full">Resmi</span>
+          <% } %>
+          <% if (map.isCustom) { %>
+            <span class="bg-purple-900/70 text-white text-xs px-2 py-1 rounded-full">Özel</span>
+          <% } %>
+          <% if (typeof serverData !== 'undefined' && serverData && serverData.map === map.code) { %>
+            <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Aktif</span>
+          <% } %>
+        </div>
+        
+        <div class="absolute bottom-4 left-4">
+          <h1 class="text-3xl font-bold text-white"><%= map.name %></h1>
+          <p class="text-gray-300 text-lg"><%= map.code %></p>
+        </div>
+      </div>
+      
+      <div class="p-6">
+        <!-- Map Details -->
+        <div class="flex flex-wrap gap-3 mb-4">
+          <span class="bg-blue-900/40 text-blue-400 px-3 py-1 rounded-full text-sm flex items-center">
+            <i class="fas fa-balance-scale mr-1"></i> Denge: CT: <%= map.ctWinRate %>% | T: <%= 100 - map.ctWinRate %>%
+          </span>
+          <span class="bg-gray-700 text-gray-300 px-3 py-1 rounded-full text-sm flex items-center">
+            <i class="fas fa-tags mr-1"></i> <%= map.type.toUpperCase() %>
+          </span>
+        </div>
+        
+        <% if (map.description) { %>
+          <div class="text-gray-300 mb-6">
+            <h3 class="text-lg font-medium text-red-400 mb-2">Harita Açıklaması</h3>
+            <p><%= map.description %></p>
+          </div>
+        <% } %>
+        
+        <!-- Favorite Button -->
+        <div class="flex flex-wrap justify-between items-center py-4 border-t border-gray-700">
+          <div class="flex items-center">
+            <span class="text-gray-300 mr-2">
+              <i class="fas fa-user"></i> <%= map.favoritedBy ? map.favoritedBy.length : 0 %> kişi favorilere ekledi
+            </span>
+          </div>
+          
+          <% if (isAuthenticated) { %>
+            <button 
+              id="modalFavoriteBtn" 
+              class="<%= isFavorited ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-700 hover:bg-gray-600' %> text-white px-4 py-2 rounded-md flex items-center transition-colors" 
+              data-map-id="<%= map._id %>"
+              data-favorited="<%= isFavorited ? 'true' : 'false' %>"
+            >
+              <i class="<%= isFavorited ? 'fas' : 'far' %> fa-heart mr-2"></i>
+              <span><%= isFavorited ? 'Favorilerden Çıkar' : 'Favorilere Ekle' %></span>
+            </button>
+          <% } else { %>
+            <a href="/login" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md flex items-center transition-colors">
+              <i class="far fa-heart mr-2"></i> Favorilere Eklemek için Giriş Yap
+            </a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Yorumlar Bölümü -->
+    <div id="mapComments" class="modal-tab-content p-6 <%= activeTab === 'comment' ? '' : 'hidden' %>">
+      <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+        <i class="fas fa-comments mr-2 text-red-500"></i> Yorumlar (<%= comments.length %>)
+      </h2>
+      
+      <!-- Yorum Formu -->
+      <% if (isAuthenticated) { %>
+        <form id="modalCommentForm" data-map-code="<%= map.code %>" class="mb-6">
+          <div class="mb-4">
+            <textarea 
+              name="content" 
+              rows="3" 
+              placeholder="Bu harita hakkında ne düşünüyorsun?" 
+              class="w-full bg-gray-700 text-white border border-gray-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              required
+            ></textarea>
+          </div>
+          <div class="flex justify-end">
+            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition-colors">
+              <i class="fas fa-paper-plane mr-2"></i> Yorum Yap
+            </button>
+          </div>
+        </form>
+        
+        <!-- Gizli kullanıcı bilgileri (JS tarafından kullanılacak) -->
+        <div class="hidden">
+          <img id="currentUserImg" src="<%= user.profileImage %>" alt="">
+          <span id="currentUsername"><%= user.username %></span>
+        </div>
+      <% } else { %>
+        <div class="bg-gray-700 rounded-lg p-4 mb-6 text-center">
+          <p class="text-gray-300 mb-2">Yorum yapmak için giriş yapmalısınız.</p>
+          <a href="/login" class="text-red-400 hover:text-red-300 transition-colors">
+            <i class="fas fa-sign-in-alt mr-1"></i> Giriş Yap
+          </a>
+        </div>
+      <% } %>
+      
+      <!-- Yorumlar Listesi -->
+      <div id="modalCommentsList" class="space-y-4">
+        <% if (comments.length > 0) { %>
+          <% comments.forEach(function(comment) { %>
+            <div class="bg-gray-700 rounded-lg p-4 mb-4 comment-item" data-comment-id="<%= comment._id %>">
+              <div class="flex justify-between mb-3">
+                <div class="flex items-center">
+                  <img src="<%= comment.author.profileImage %>" alt="<%= comment.author.username %>" class="w-10 h-10 rounded-full mr-3 object-cover">
+                  <div>
+                    <a href="/user/<%= comment.author.username %>" class="text-white font-medium hover:text-red-400 transition-colors">
+                      <%= comment.author.username %>
+                    </a>
+                    <p class="text-xs text-gray-400">
+                      <%= new Date(comment.createdAt).toLocaleDateString('tr-TR', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      }) %>
+                    </p>
+                  </div>
+                </div>
+                
+                <% if (isAuthenticated && (user._id.toString() === comment.author._id.toString() || ['site_admini', 'sunucu_sahibi', 'site_kurucusu'].includes(user.role))) { %>
+                  <button class="text-gray-400 hover:text-red-400 focus:outline-none delete-comment" data-comment-id="<%= comment._id %>">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                <% } %>
+              </div>
+              
+              <p class="text-gray-300"><%= comment.content %></p>
+            </div>
+          <% }); %>
+        <% } else { %>
+          <div class="text-center py-8 no-comments-message">
+            <p class="text-gray-400 text-lg">Henüz yorum yok.</p>
+            <p class="text-gray-500 mt-2">İlk yorumu sen yap!</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div> 

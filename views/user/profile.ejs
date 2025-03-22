@@ -1,0 +1,356 @@
+<%- include('../partials/header') %>
+
+<div class="container mx-auto px-4 py-8">
+  <!-- Flash Messages -->
+  <% if(typeof(messages) != 'undefined') { %>
+    <% if(messages.error && messages.error.length > 0) { %>
+      <div class="max-w-4xl mx-auto bg-gradient-to-r from-red-900/80 to-red-800/80 border border-red-700 text-white px-5 py-4 rounded-lg mb-6 flex items-center shadow-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        <span class="font-medium"><%= messages.error %></span>
+      </div>
+    <% } %>
+  <% } %>
+  
+  <div class="max-w-4xl mx-auto">
+    <!-- Profile Header -->
+    <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden mb-6">
+      <div class="p-6">
+        <div class="flex flex-col md:flex-row items-center">
+          <!-- Profile Image -->
+          <div class="mb-4 md:mb-0 md:mr-6">
+            <div class="relative">
+              <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-red-600 shadow-lg">
+                <img src="<%= profile.profileImage %>" alt="<%= profile.username %>" class="w-full h-full object-cover">
+              </div>
+              <% if (!profile.isPublic) { %>
+                <span class="absolute top-0 right-0 bg-red-600 text-white text-xs px-2 py-1 rounded-full">Gizli</span>
+              <% } %>
+              <% if (profile.role === 'site_kurucusu' && !profile.hideRole) { %>
+                <span class="absolute bottom-0 right-0 bg-purple-600 text-white text-xs px-2 py-1 rounded-full">Site Kurucusu</span>
+              <% } else if (profile.role === 'sunucu_sahibi') { %>
+                <span class="absolute bottom-0 right-0 bg-red-600 text-white text-xs px-2 py-1 rounded-full">Sunucu Sahibi</span>
+              <% } else if (profile.role === 'site_admini') { %>
+                <span class="absolute bottom-0 right-0 bg-green-600 text-white text-xs px-2 py-1 rounded-full">Site Admini</span>
+              <% } else if (profile.role === 'sunucu_admini') { %>
+                <span class="absolute bottom-0 right-0 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">Sunucu Admini</span>
+              <% } %>
+            </div>
+          </div>
+          
+          <!-- Profile Info -->
+          <div class="text-center md:text-left flex-1">
+            <h1 class="text-3xl font-bold text-white flex items-center justify-center md:justify-start">
+              <%= profile.username %>
+              <% if (profile.isOnline) { %>
+                <span class="ml-2 h-3 w-3 bg-green-500 rounded-full inline-block"></span>
+              <% } %>
+            </h1>
+            <p class="text-gray-400 mb-2">
+              <% if (profile.steamId) { %>
+                <span class="text-gray-300">Steam ID: <%= profile.steamId %></span>
+              <% } %>
+            </p>
+            
+            <div class="mt-4 flex flex-wrap justify-center md:justify-start gap-2">
+              <% if (isOwnProfile) { %>
+                <a href="/edit-profile" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-700 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                  </svg>
+                  Profili Düzenle
+                </a>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Main Content Section -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Left Column (About & Comments) -->
+      <div class="md:col-span-2">
+        <!-- About/Bio Section -->
+        <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden mb-6">
+          <div class="p-6">
+            <h2 class="text-xl font-bold text-red-500 mb-4">Hakkında</h2>
+            <div class="bg-gray-700 rounded-lg p-4 mb-4">
+              <% if (profile.bio) { %>
+                <p class="text-gray-200"><%= profile.bio %></p>
+              <% } else { %>
+                <p class="text-gray-400">Henüz bir hakkında bilgisi yok.</p>
+              <% } %>
+            </div>
+
+            <!-- Profile Comments Section -->
+            <div class="mt-6">
+              <h3 class="text-lg font-medium text-red-400 mb-3">Yorumlar</h3>
+              
+              <!-- Comment Form -->
+              <% if (locals.isAuthenticated) { %>
+                <form action="/user/<%= profile._id %>/comment" method="POST" class="mb-4" id="commentForm">
+                  <div class="mb-2">
+                    <textarea name="content" id="content" rows="3" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 text-white" placeholder="Bir yorum yazın..."></textarea>
+                  </div>
+                  <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition">
+                    Yorum Ekle
+                  </button>
+                </form>
+              <% } else { %>
+                <div class="mb-4 p-3 bg-gray-700 rounded-md">
+                  <p class="text-gray-300">Yorum yapmak için <a href="/login" class="text-red-400 hover:underline">giriş yapın</a>.</p>
+                </div>
+              <% } %>
+              
+              <!-- Comments List -->
+              <div id="commentsContainer" class="space-y-4">
+                <% if (profileComments && profileComments.length > 0) { %>
+                  <% profileComments.forEach(function(comment) { %>
+                    <div class="bg-gray-700 rounded-lg p-4 comment-item" data-id="<%= comment._id %>">
+                      <div class="flex justify-between">
+                        <div class="flex items-start mb-2">
+                          <img src="<%= comment.author.profileImage %>" alt="<%= comment.author.username %>" class="w-8 h-8 rounded-full mr-2">
+                          <div>
+                            <a href="/user/<%= comment.author.username %>" class="text-red-400 font-medium hover:underline">
+                              <%= comment.author.username %>
+                            </a>
+                            <p class="text-gray-200"><%= comment.content %></p>
+                          </div>
+                        </div>
+                        <div class="flex items-start">
+                          <span class="text-gray-400 text-sm">
+                            <%= new Date(comment.createdAt).toLocaleString('tr-TR', {dateStyle: 'short', timeStyle: 'short'}) %>
+                          </span>
+                          <% if (locals.user && (comment.author._id.toString() === locals.user._id.toString() || profile._id.toString() === locals.user._id.toString() || ['site_admini', 'sunucu_sahibi', 'site_kurucusu'].includes(locals.user.role))) { %>
+                            <button class="ml-2 text-gray-400 hover:text-red-400 delete-comment" data-id="<%= comment._id %>">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                              </svg>
+                            </button>
+                          <% } %>
+                        </div>
+                      </div>
+                    </div>
+                  <% }); %>
+                <% } else { %>
+                  <p class="text-gray-400" id="no-comments-message">Henüz yorum yapılmamış.</p>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- User Map Comments -->
+        <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+          <div class="p-6">
+            <h2 class="text-xl font-bold text-red-500 mb-4 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z" clip-rule="evenodd" />
+              </svg>
+              Harita Yorumları
+            </h2>
+            
+            <% if (mapComments && mapComments.length > 0) { %>
+              <div class="space-y-4">
+                <% mapComments.forEach(function(comment) { %>
+                  <div class="bg-gray-700 rounded-lg p-4">
+                    <div class="flex justify-between items-start mb-2">
+                      <a href="/maps/<%= comment.map.code %>" class="text-red-400 font-medium hover:underline">
+                        <%= comment.map.name %> (<%= comment.map.code %>)
+                      </a>
+                      <span class="text-gray-400 text-sm">
+                        <%= new Date(comment.createdAt).toLocaleDateString('tr-TR') %>
+                      </span>
+                    </div>
+                    <p class="text-gray-200"><%= comment.content %></p>
+                  </div>
+                <% }); %>
+              </div>
+            <% } else { %>
+              <p class="text-gray-400">Henüz harita yorumu yapılmamış.</p>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Column (Stats) -->
+      <div class="md:col-span-1">
+        <!-- Game Stats -->
+        <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+          <div class="p-6">
+            <h2 class="text-xl font-bold text-red-500 mb-4 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+              </svg>
+              Oyun İstatistikleri
+            </h2>
+            
+            <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                <span class="text-gray-300">Kills</span>
+                <span class="text-white font-bold"><%= profile.stats.kills %></span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-gray-300">Deaths</span>
+                <span class="text-white font-bold"><%= profile.stats.deaths %></span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-gray-300">KD Oranı</span>
+                <span class="text-white font-bold">
+                  <%= profile.stats.deaths > 0 ? (profile.stats.kills / profile.stats.deaths).toFixed(2) : profile.stats.kills %>
+                </span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-gray-300">Oynama Süresi</span>
+                <span class="text-white font-bold">
+                  <%= Math.floor(profile.stats.playTime / 60) %> saat 
+                  <%= profile.stats.playTime % 60 %> dakika
+                </span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-gray-300">Son Görülme</span>
+                <span class="text-white font-bold">
+                  <% if (profile.isOnline) { %>
+                    <span class="text-green-400">Çevrimiçi</span>
+                  <% } else if (profile.lastActive) { %>
+                    <%= new Date(profile.lastActive).toLocaleString('tr-TR') %>
+                  <% } else { %>
+                    Hiç
+                  <% } %>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add JavaScript for AJAX comment handling -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Comment Form Submission
+    const commentForm = document.getElementById('commentForm');
+    if (commentForm) {
+      commentForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const content = document.getElementById('content').value;
+        if (!content.trim()) return;
+        
+        fetch(commentForm.action, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ content })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Clear form
+            document.getElementById('content').value = '';
+            
+            // Add new comment to the list
+            const commentsContainer = document.getElementById('commentsContainer');
+            const noCommentsMessage = document.getElementById('no-comments-message');
+            if (noCommentsMessage) {
+              noCommentsMessage.remove();
+            }
+            
+            // Create new comment element
+            const comment = data.comment;
+            const commentDate = new Date(comment.createdAt).toLocaleString('tr-TR', {dateStyle: 'short', timeStyle: 'short'});
+            
+            const newComment = document.createElement('div');
+            newComment.className = 'bg-gray-700 rounded-lg p-4 comment-item';
+            newComment.dataset.id = comment._id;
+            
+            newComment.innerHTML = `
+              <div class="flex justify-between">
+                <div class="flex items-start mb-2">
+                  <img src="${comment.author.profileImage}" alt="${comment.author.username}" class="w-8 h-8 rounded-full mr-2">
+                  <div>
+                    <a href="/user/${comment.author.username}" class="text-red-400 font-medium hover:underline">
+                      ${comment.author.username}
+                    </a>
+                    <p class="text-gray-200">${comment.content}</p>
+                  </div>
+                </div>
+                <div class="flex items-start">
+                  <span class="text-gray-400 text-sm">${commentDate}</span>
+                  <button class="ml-2 text-gray-400 hover:text-red-400 delete-comment" data-id="${comment._id}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            `;
+            
+            // Add to the top of comments
+            commentsContainer.insertBefore(newComment, commentsContainer.firstChild);
+            
+            // Add event listener to delete button
+            initDeleteButtons();
+          }
+        })
+        .catch(error => console.error('Error adding comment:', error));
+      });
+    }
+    
+    // Delete Comment Buttons
+    function initDeleteButtons() {
+      const deleteButtons = document.querySelectorAll('.delete-comment');
+      deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const commentId = this.dataset.id;
+          if (confirm('Bu yorumu silmek istediğinizden emin misiniz?')) {
+            deleteComment(commentId, this);
+          }
+        });
+      });
+    }
+    
+    function deleteComment(commentId, buttonElement) {
+      fetch(`/comments/${commentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Remove comment from DOM
+          const commentItem = buttonElement.closest('.comment-item');
+          if (commentItem) {
+            commentItem.remove();
+            
+            // Check if no comments left
+            const commentsContainer = document.getElementById('commentsContainer');
+            if (commentsContainer.children.length === 0) {
+              const noCommentsMessage = document.createElement('p');
+              noCommentsMessage.id = 'no-comments-message';
+              noCommentsMessage.className = 'text-gray-400';
+              noCommentsMessage.textContent = 'Henüz yorum yapılmamış.';
+              commentsContainer.appendChild(noCommentsMessage);
+            }
+          }
+        } else {
+          alert(data.message || 'Yorum silinirken bir hata oluştu.');
+        }
+      })
+      .catch(error => console.error('Error deleting comment:', error));
+    }
+    
+    // Initialize delete buttons
+    initDeleteButtons();
+  });
+</script>
+
+<%- include('../partials/footer') %> 

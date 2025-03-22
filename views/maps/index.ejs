@@ -1,0 +1,658 @@
+<%- include('../partials/header') %>
+
+<div class="container mx-auto px-4 py-8">
+  <!-- Flash Messages -->
+  <% if(typeof(messages) != 'undefined') { %>
+    <% if(messages.error && messages.error.length > 0) { %>
+      <div class="bg-gradient-to-r from-red-900/80 to-red-800/80 border border-red-700 text-white px-5 py-4 rounded-lg mb-6 flex items-center shadow-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        <span class="font-medium"><%= messages.error %></span>
+      </div>
+    <% } %>
+    
+    <% if(messages.success && messages.success.length > 0) { %>
+      <div class="bg-gradient-to-r from-green-900/80 to-green-800/80 border border-green-700 text-white px-5 py-4 rounded-lg mb-6 flex items-center shadow-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+        </svg>
+        <span class="font-medium"><%= messages.success %></span>
+      </div>
+    <% } %>
+  <% } %>
+
+  <!-- Bildirim alanı - AJAX işlemleri için -->
+  <div id="notificationArea" class="hidden fixed top-5 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md"></div>
+
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold text-white mb-4 md:mb-0">
+      <i class="fas fa-map mr-3 text-red-500"></i> CS 1.6 Haritaları
+    </h1>
+    
+    <!-- Filter Controls -->
+    <div class="flex flex-wrap gap-3">
+      <div class="relative">
+        <select id="mapTypeFilter" class="bg-gray-800 text-white border border-gray-700 rounded-md px-4 py-2 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-red-500">
+          <option value="all">Tüm Türler</option>
+          <option value="de">Defuse (de_)</option>
+          <option value="cs">Hostage (cs_)</option>
+          <option value="as">Assassination (as_)</option>
+          <option value="fy">Fight Yard (fy_)</option>
+          <option value="awp">AWP Maps (awp_)</option>
+          <option value="aim">Aim Maps (aim_)</option>
+          <option value="other">Diğer</option>
+        </select>
+        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+          <i class="fas fa-chevron-down"></i>
+        </div>
+      </div>
+      
+      <div class="relative">
+        <input 
+          type="text" 
+          id="mapSearch" 
+          placeholder="Harita ara..." 
+          class="bg-gray-800 text-white border border-gray-700 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 min-w-[200px]"
+        >
+        <div class="absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+          <i class="fas fa-search"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Maps Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="mapsGrid">
+    <% if (maps && maps.length > 0) { %>
+      <% maps.forEach(function(map) { %>
+        <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transition-transform hover:scale-[1.02] map-card" 
+             data-map-type="<%= map.type %>">
+          <div class="relative h-48 cursor-pointer map-open-modal" data-map-id="<%= map._id %>" data-map-code="<%= map.code %>">
+            <img src="<%= map.imageUrl %>" alt="<%= map.name %>" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent to-gray-800/90"></div>
+            
+            <div class="absolute top-3 right-3 flex gap-2">
+              <% if (map.isOfficial) { %>
+                <span class="bg-blue-900/70 text-white text-xs px-2 py-1 rounded-full">Resmi</span>
+              <% } %>
+              <% if (map.isCustom) { %>
+                <span class="bg-purple-900/70 text-white text-xs px-2 py-1 rounded-full">Özel</span>
+              <% } %>
+              <% if (serverData && serverData.map === map.code) { %>
+                <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Aktif</span>
+              <% } %>
+            </div>
+            
+            <div class="absolute bottom-3 left-3">
+              <h2 class="text-xl font-bold text-white"><%= map.name %></h2>
+              <p class="text-gray-300"><%= map.code %></p>
+            </div>
+          </div>
+          
+          <div class="p-4">
+            <div class="flex justify-between items-center">
+              <span class="bg-gray-700 text-gray-300 px-2 py-1 rounded-full text-xs flex items-center">
+                <i class="fas fa-tags mr-1"></i> <%= map.type.toUpperCase() %>
+              </span>
+              
+              <span class="flex items-center gap-2">
+                <!-- Favori Yıldızı -->
+                <% if (typeof user !== 'undefined' && user) { %>
+                  <button 
+                    class="favorite-btn text-xl transition-colors focus:outline-none"
+                    data-map-id="<%= map._id %>"
+                    data-favorited="<%= map.favoritedBy && map.favoritedBy.includes(user._id) ? 'true' : 'false' %>"
+                  >
+                    <i class="<%= map.favoritedBy && map.favoritedBy.includes(user._id) ? 'fas' : 'far' %> fa-star text-yellow-400"></i>
+                  </button>
+                <% } else { %>
+                  <a href="/login" class="text-xl text-gray-500 hover:text-yellow-400 transition-colors">
+                    <i class="far fa-star"></i>
+                  </a>
+                <% } %>
+                
+                <!-- Favori Sayısı -->
+                <span class="text-gray-400 text-sm">
+                  <%= map.favoritedBy ? map.favoritedBy.length : 0 %>
+                </span>
+              </span>
+            </div>
+            
+            <% if (map.description) { %>
+              <p class="text-gray-400 mt-3 line-clamp-2 text-sm"><%= map.description %></p>
+            <% } %>
+            
+            <div class="mt-4 flex justify-between items-center">
+              <button class="map-open-modal text-red-400 hover:text-red-300 text-sm flex items-center" data-map-id="<%= map._id %>" data-map-code="<%= map.code %>">
+                Detayları Gör
+                <i class="fas fa-chevron-right ml-1 text-xs"></i>
+              </button>
+              
+              <button class="comment-btn bg-gray-700 hover:bg-gray-600 text-white text-sm px-3 py-1 rounded-md flex items-center" 
+                      data-map-id="<%= map._id %>" data-map-code="<%= map.code %>">
+                <i class="fas fa-comment mr-2"></i>
+                Yorum Yap
+              </button>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    <% } else { %>
+      <div class="col-span-3 py-12 text-center">
+        <p class="text-gray-400 text-lg">Henüz harita eklenmemiş.</p>
+      </div>
+    <% } %>
+  </div>
+  
+  <!-- No Results Message (Hidden by default) -->
+  <div id="noResults" class="hidden py-12 text-center">
+    <p class="text-gray-400 text-lg">Aramanıza uygun harita bulunamadı.</p>
+  </div>
+</div>
+
+<!-- Harita Detay Modalı -->
+<div id="mapModal" class="fixed inset-0 bg-black/70 z-50 hidden overflow-y-auto">
+  <div class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full relative">
+      <!-- Modal kapatma butonu -->
+      <button id="closeModal" class="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors">
+        <i class="fas fa-times"></i>
+      </button>
+      
+      <!-- Modal içeriği - AJAX ile doldurulacak -->
+      <div id="mapModalContent" class="animate-fade-in">
+        <!-- Yükleniyor göstergesi -->
+        <div class="p-12 text-center">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
+          <p class="mt-4 text-gray-400">Harita bilgileri yükleniyor...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Maps Filter JavaScript -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const mapTypeFilter = document.getElementById('mapTypeFilter');
+    const mapSearch = document.getElementById('mapSearch');
+    const mapsGrid = document.getElementById('mapsGrid');
+    const mapCards = document.querySelectorAll('.map-card');
+    const noResults = document.getElementById('noResults');
+    const mapModal = document.getElementById('mapModal');
+    const mapModalContent = document.getElementById('mapModalContent');
+    const closeModal = document.getElementById('closeModal');
+    const notificationArea = document.getElementById('notificationArea');
+    
+    // Filtre fonksiyonu
+    function filterMaps() {
+      const selectedType = mapTypeFilter.value;
+      const searchText = mapSearch.value.toLowerCase();
+      let visibleCount = 0;
+      
+      mapCards.forEach(card => {
+        const mapType = card.getAttribute('data-map-type');
+        const mapName = card.querySelector('h2').textContent.toLowerCase();
+        const mapCode = card.querySelector('p').textContent.toLowerCase();
+        
+        // Tür filtreleme
+        const typeMatch = selectedType === 'all' || mapType === selectedType;
+        
+        // Metin arama
+        const textMatch = searchText === '' || 
+                         mapName.includes(searchText) || 
+                         mapCode.includes(searchText);
+        
+        // Sonuçları göster/gizle
+        if (typeMatch && textMatch) {
+          card.style.display = 'block';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+      
+      // Sonuç bulunamadı mesajını göster/gizle
+      if (visibleCount === 0) {
+        noResults.style.display = 'block';
+      } else {
+        noResults.style.display = 'none';
+      }
+    }
+    
+    // Olay dinleyicileri - filtre
+    if (mapTypeFilter) mapTypeFilter.addEventListener('change', filterMaps);
+    if (mapSearch) {
+      mapSearch.addEventListener('input', filterMaps);
+      mapSearch.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          filterMaps();
+        }
+      });
+    }
+    
+    // Favori butonları
+    document.querySelectorAll('.favorite-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const mapId = this.getAttribute('data-map-id');
+        const isFavorited = this.getAttribute('data-favorited') === 'true';
+        
+        fetch(`/maps/${mapId}/toggle-favorite`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // UI güncelleme
+            const newState = !isFavorited;
+            this.setAttribute('data-favorited', newState.toString());
+            
+            // Yıldız ikonunu güncelle
+            const starIcon = this.querySelector('i');
+            if (newState) {
+              starIcon.classList.remove('far');
+              starIcon.classList.add('fas');
+            } else {
+              starIcon.classList.remove('fas');
+              starIcon.classList.add('far');
+            }
+            
+            // Favori sayısını güncelle
+            const countSpan = this.nextElementSibling;
+            const currentCount = parseInt(countSpan.textContent);
+            countSpan.textContent = newState ? currentCount + 1 : currentCount - 1;
+            
+            // Bildirim göster
+            showNotification(data.message, 'success');
+          } else {
+            showNotification(data.message || 'Bir hata oluştu', 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Favori işlemi hatası:', error);
+          showNotification('İşlem sırasında bir hata oluştu', 'error');
+        });
+      });
+    });
+    
+    // Modal açma butonları
+    document.querySelectorAll('.map-open-modal').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const mapCode = this.getAttribute('data-map-code');
+        openMapModal(mapCode);
+      });
+    });
+    
+    // Yorum yapma butonları
+    document.querySelectorAll('.comment-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const mapCode = this.getAttribute('data-map-code');
+        openMapModal(mapCode, 'comment');
+      });
+    });
+    
+    // Modal kapatma
+    if (closeModal) {
+      closeModal.addEventListener('click', function() {
+        mapModal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+      });
+    }
+    
+    // Modal dışına tıklayınca kapatma
+    mapModal.addEventListener('click', function(e) {
+      if (e.target === this) {
+        mapModal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+      }
+    });
+    
+    // ESC tuşu ile modalı kapatma
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && !mapModal.classList.contains('hidden')) {
+        mapModal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+      }
+    });
+    
+    // Harita modalını açma fonksiyonu
+    function openMapModal(mapCode, activeTab = 'details') {
+      mapModalContent.innerHTML = `
+        <div class="p-12 text-center">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
+          <p class="mt-4 text-gray-400">Harita bilgileri yükleniyor...</p>
+        </div>
+      `;
+      
+      mapModal.classList.remove('hidden');
+      document.body.classList.add('overflow-hidden');
+      
+      // Harita detaylarını AJAX ile getir
+      fetch(`/maps/${mapCode}/modal?tab=${activeTab}`, {
+        method: 'GET',
+        credentials: 'same-origin'
+      })
+      .then(response => response.text())
+      .then(html => {
+        mapModalContent.innerHTML = html;
+        
+        // Modaldaki formları ve butonları etkinleştir
+        initModalEvents();
+      })
+      .catch(error => {
+        console.error('Harita detayları yüklenirken hata:', error);
+        mapModalContent.innerHTML = `
+          <div class="p-12 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-red-500 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <p class="mt-4 text-gray-400">Harita bilgileri yüklenirken bir hata oluştu.</p>
+            <button class="mt-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md" onclick="document.getElementById('mapModal').classList.add('hidden'); document.body.classList.remove('overflow-hidden');">
+              Kapat
+            </button>
+          </div>
+        `;
+      });
+    }
+    
+    // Modal içindeki event listener'ları ayarlama
+    function initModalEvents() {
+      // Yorum formu
+      const commentForm = document.getElementById('modalCommentForm');
+      if (commentForm) {
+        commentForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const mapCode = this.getAttribute('data-map-code');
+          const content = this.querySelector('textarea[name="content"]').value;
+          
+          fetch(`/maps/${mapCode}/comment`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ content }),
+            credentials: 'same-origin'
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Yorumu listeye ekle
+              const commentsList = document.getElementById('modalCommentsList');
+              const commentCount = document.getElementById('modalCommentCount');
+              
+              // Kullanıcı bilgilerini al
+              const userImg = document.getElementById('currentUserImg').src;
+              const username = document.getElementById('currentUsername').textContent;
+              
+              // Yeni yorum HTML'i
+              const commentHtml = `
+                <div class="bg-gray-700 rounded-lg p-4 mb-4 comment-item" data-comment-id="${data.commentId}">
+                  <div class="flex justify-between mb-3">
+                    <div class="flex items-center">
+                      <img src="${userImg}" alt="${username}" class="w-10 h-10 rounded-full mr-3 object-cover">
+                      <div>
+                        <a href="/user/${username}" class="text-white font-medium hover:text-red-400 transition-colors">
+                          ${username}
+                        </a>
+                        <p class="text-xs text-gray-400">
+                          Henüz şimdi
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <button class="text-gray-400 hover:text-red-400 focus:outline-none delete-comment" data-comment-id="${data.commentId}">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                  
+                  <p class="text-gray-300">${content}</p>
+                </div>
+              `;
+              
+              // Yorumu ekle
+              if (document.querySelector('.no-comments-message')) {
+                commentsList.innerHTML = commentHtml;
+              } else {
+                commentsList.insertAdjacentHTML('afterbegin', commentHtml);
+              }
+              
+              // Yorum sayısını güncelle
+              if (commentCount) {
+                const newCount = parseInt(commentCount.textContent) + 1;
+                commentCount.textContent = newCount;
+              }
+              
+              // Formu temizle
+              this.querySelector('textarea[name="content"]').value = '';
+              
+              // Silme butonunu etkinleştir
+              const deleteBtn = commentsList.querySelector(`[data-comment-id="${data.commentId}"] .delete-comment`);
+              if (deleteBtn) {
+                deleteBtn.addEventListener('click', handleCommentDelete);
+              }
+              
+              // Bildirim göster
+              showNotification('Yorumunuz başarıyla eklendi', 'success');
+            } else {
+              showNotification(data.message || 'Yorum eklenirken bir hata oluştu', 'error');
+            }
+          })
+          .catch(error => {
+            console.error('Yorum ekleme hatası:', error);
+            showNotification('İşlem sırasında bir hata oluştu', 'error');
+          });
+        });
+      }
+      
+      // Yorum silme butonları
+      document.querySelectorAll('.delete-comment').forEach(btn => {
+        btn.addEventListener('click', handleCommentDelete);
+      });
+      
+      // Modal içindeki favori butonu
+      const modalFavoriteBtn = document.getElementById('modalFavoriteBtn');
+      if (modalFavoriteBtn) {
+        modalFavoriteBtn.addEventListener('click', function() {
+          const mapId = this.getAttribute('data-map-id');
+          const isFavorited = this.getAttribute('data-favorited') === 'true';
+          
+          fetch(`/maps/${mapId}/toggle-favorite`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'same-origin'
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // UI güncelleme
+              const newState = !isFavorited;
+              this.setAttribute('data-favorited', newState.toString());
+              
+              // Buton görünümünü güncelle
+              if (newState) {
+                this.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+                this.classList.add('bg-red-600', 'hover:bg-red-700');
+                this.querySelector('span').textContent = 'Favorilerden Çıkar';
+                this.querySelector('i').classList.remove('far');
+                this.querySelector('i').classList.add('fas');
+              } else {
+                this.classList.remove('bg-red-600', 'hover:bg-red-700');
+                this.classList.add('bg-gray-700', 'hover:bg-gray-600');
+                this.querySelector('span').textContent = 'Favorilere Ekle';
+                this.querySelector('i').classList.remove('fas');
+                this.querySelector('i').classList.add('far');
+              }
+              
+              // Ana sayfadaki favori butonunu güncelle
+              const mainPageBtn = document.querySelector(`.favorite-btn[data-map-id="${mapId}"]`);
+              if (mainPageBtn) {
+                mainPageBtn.setAttribute('data-favorited', newState.toString());
+                const starIcon = mainPageBtn.querySelector('i');
+                if (newState) {
+                  starIcon.classList.remove('far');
+                  starIcon.classList.add('fas');
+                } else {
+                  starIcon.classList.remove('fas');
+                  starIcon.classList.add('far');
+                }
+                
+                // Favori sayısını güncelle
+                const countSpan = mainPageBtn.nextElementSibling;
+                const currentCount = parseInt(countSpan.textContent);
+                countSpan.textContent = newState ? currentCount + 1 : currentCount - 1;
+              }
+              
+              // Bildirim göster
+              showNotification(data.message, 'success');
+            } else {
+              showNotification(data.message || 'Bir hata oluştu', 'error');
+            }
+          })
+          .catch(error => {
+            console.error('Favori işlemi hatası:', error);
+            showNotification('İşlem sırasında bir hata oluştu', 'error');
+          });
+        });
+      }
+      
+      // Sekmeler arası geçiş
+      const tabButtons = document.querySelectorAll('.modal-tab-btn');
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const tabId = this.getAttribute('data-tab');
+          
+          // Aktif sekmeyi değiştir
+          tabButtons.forEach(b => {
+            b.classList.remove('bg-red-600', 'text-white');
+            b.classList.add('bg-gray-700', 'text-gray-300');
+          });
+          this.classList.remove('bg-gray-700', 'text-gray-300');
+          this.classList.add('bg-red-600', 'text-white');
+          
+          // Sekme içeriklerini göster/gizle
+          document.querySelectorAll('.modal-tab-content').forEach(content => {
+            content.classList.add('hidden');
+          });
+          document.getElementById(tabId).classList.remove('hidden');
+        });
+      });
+    }
+    
+    // Yorum silme fonksiyonu
+    function handleCommentDelete() {
+      if (confirm('Bu yorumu silmek istediğinize emin misiniz?')) {
+        const commentId = this.getAttribute('data-comment-id');
+        const commentElement = document.querySelector(`.comment-item[data-comment-id="${commentId}"]`);
+        
+        fetch(`/comments/${commentId}`, {
+          method: 'DELETE',
+          credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Yorumu UI'dan kaldır
+            if (commentElement) {
+              commentElement.remove();
+              
+              // Yorum sayısını güncelle
+              const commentCount = document.getElementById('modalCommentCount');
+              if (commentCount) {
+                const newCount = parseInt(commentCount.textContent) - 1;
+                commentCount.textContent = newCount;
+                
+                // Eğer yorum kalmadıysa "henüz yorum yok" mesajını göster
+                if (newCount === 0) {
+                  const commentsList = document.getElementById('modalCommentsList');
+                  commentsList.innerHTML = `
+                    <div class="text-center py-8 no-comments-message">
+                      <p class="text-gray-400 text-lg">Henüz yorum yok.</p>
+                      <p class="text-gray-500 mt-2">İlk yorumu sen yap!</p>
+                    </div>
+                  `;
+                }
+              }
+            }
+            
+            // Bildirim göster
+            showNotification('Yorum başarıyla silindi', 'success');
+          } else {
+            showNotification(data.message || 'Yorum silinirken bir hata oluştu', 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Yorum silme hatası:', error);
+          showNotification('İşlem sırasında bir hata oluştu', 'error');
+        });
+      }
+    }
+    
+    // Bildirim gösterme fonksiyonu
+    function showNotification(message, type = 'success') {
+      const bgColor = type === 'success' 
+        ? 'from-green-900/80 to-green-800/80 border-green-700' 
+        : 'from-red-900/80 to-red-800/80 border-red-700';
+      
+      const iconColor = type === 'success' ? 'text-green-400' : 'text-red-400';
+      
+      const iconPath = type === 'success'
+        ? '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />'
+        : '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />';
+      
+      const notification = document.createElement('div');
+      notification.className = `bg-gradient-to-r ${bgColor} text-white px-5 py-4 rounded-lg mb-4 flex items-center shadow-lg animate-fade-in`;
+      notification.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 ${iconColor}" viewBox="0 0 20 20" fill="currentColor">
+          ${iconPath}
+        </svg>
+        <span class="font-medium">${message}</span>
+      `;
+      
+      notificationArea.innerHTML = '';
+      notificationArea.appendChild(notification);
+      notificationArea.classList.remove('hidden');
+      
+      setTimeout(() => {
+        notification.classList.add('animate-fade-out');
+        setTimeout(() => {
+          notificationArea.classList.add('hidden');
+          notificationArea.innerHTML = '';
+        }, 300);
+      }, 3000);
+    }
+  });
+</script>
+
+<!-- Animasyon stilleri -->
+<style>
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  .animate-fade-out {
+    animation: fadeOut 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+</style>
+
+<%- include('../partials/footer') %> 

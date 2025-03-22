@@ -58,39 +58,75 @@
         <!-- Navigation Menu -->
         <nav class="bg-gray-700 shadow-md">
             <div class="container mx-auto">
-                <ul class="flex flex-wrap">
-                    <li class="<%= activePage === 'home' ? 'bg-gray-600' : '' %> hover:bg-gray-600 transition-colors">
-                        <a href="/" class="block px-4 py-3 text-white font-medium">
-                            <i class="fas fa-home mr-2"></i>Ana Sayfa
-                        </a>
-                    </li>
-                    <li class="<%= activePage === 'players' ? 'bg-gray-600' : '' %> hover:bg-gray-600 transition-colors">
-                        <a href="/players" class="block px-4 py-3 text-white font-medium">
-                            <i class="fas fa-users mr-2"></i>Oyuncular
-                        </a>
-                    </li>
-                    <li class="<%= activePage === 'stats' ? 'bg-gray-600' : '' %> hover:bg-gray-600 transition-colors">
-                        <a href="/stats" class="block px-4 py-3 text-white font-medium">
-                            <i class="fas fa-chart-bar mr-2"></i>İstatistikler
-                        </a>
-                    </li>
-                    <li class="<%= activePage === 'weapons' ? 'bg-gray-600' : '' %> hover:bg-gray-600 transition-colors">
-                        <a href="/weapons" class="block px-4 py-3 text-white font-medium">
-                            <i class="fas fa-crosshairs mr-2"></i>Silah Modelleri
-                        </a>
-                    </li>
+                <ul class="flex flex-wrap justify-between">
+                    <div class="flex flex-wrap">
+                        <li class="<%= activePage === 'home' ? 'bg-gray-600' : '' %> hover:bg-gray-600 transition-colors">
+                            <a href="/" class="block px-4 py-3 text-white font-medium">
+                                <i class="fas fa-home mr-2"></i>Ana Sayfa
+                            </a>
+                        </li>
+                        <li class="<%= activePage === 'players' ? 'bg-gray-600' : '' %> hover:bg-gray-600 transition-colors">
+                            <a href="/players" class="block px-4 py-3 text-white font-medium">
+                                <i class="fas fa-users mr-2"></i>Oyuncular
+                            </a>
+                        </li>
+                        <li class="<%= activePage === 'stats' ? 'bg-gray-600' : '' %> hover:bg-gray-600 transition-colors">
+                            <a href="/stats" class="block px-4 py-3 text-white font-medium">
+                                <i class="fas fa-chart-bar mr-2"></i>İstatistikler
+                            </a>
+                        </li>
+                        <li class="<%= activePage === 'weapons' ? 'bg-gray-600' : '' %> hover:bg-gray-600 transition-colors">
+                            <a href="/weapons" class="block px-4 py-3 text-white font-medium">
+                                <i class="fas fa-crosshairs mr-2"></i>Silah Modelleri
+                            </a>
+                        </li>
+                        <li class="<%= activePage === 'maps' ? 'bg-gray-600' : '' %> hover:bg-gray-600 transition-colors">
+                            <a href="/maps" class="block px-4 py-3 text-white font-medium">
+                                <i class="fas fa-map mr-2"></i>Haritalar
+                            </a>
+                        </li>
+                        <li class="<%= activePage === 'about' ? 'bg-gray-600' : '' %> hover:bg-gray-600 transition-colors">
+                            <a href="/about" class="block px-4 py-3 text-white font-medium">
+                                <i class="fas fa-info-circle mr-2"></i>Hakkında
+                            </a>
+                        </li>
+                    </div>
                     
-                    <li class="<%= activePage === 'maps' ? 'bg-gray-600' : '' %> hover:bg-gray-600 transition-colors">
-                        <a href="/maps" class="block px-4 py-3 text-white font-medium">
-                            <i class="fas fa-map mr-2"></i>Haritalar
-                        </a>
-                    </li>
-                    
-                    <li class="<%= activePage === 'about' ? 'bg-gray-600' : '' %> hover:bg-gray-600 transition-colors">
-                        <a href="/about" class="block px-4 py-3 text-white font-medium">
-                            <i class="fas fa-info-circle mr-2"></i>Hakkında
-                        </a>
-                    </li>
+                    <!-- Auth Nav Items -->
+                    <div class="flex flex-wrap">
+                        <% if (typeof user !== 'undefined' && user) { %>
+                            <li class="<%= activePage === 'profile' ? 'bg-gray-600' : '' %> hover:bg-gray-600 transition-colors">
+                                <a href="/profile" class="block px-4 py-3 text-white font-medium">
+                                    <i class="fas fa-user mr-2"></i><%= user.username %>
+                                    <% if (user.role === 'site_kurucusu' && !user.hideRole) { %>
+                                        <span class="ml-1 bg-purple-600 text-white text-xs px-2 py-0.5 rounded-full">Site Kurucusu</span>
+                                    <% } else if (user.role === 'sunucu_sahibi') { %>
+                                        <span class="ml-1 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">Sunucu Sahibi</span>
+                                    <% } else if (user.role === 'site_admini') { %>
+                                        <span class="ml-1 bg-green-600 text-white text-xs px-2 py-0.5 rounded-full">Site Admini</span>
+                                    <% } else if (user.role === 'sunucu_admini') { %>
+                                        <span class="ml-1 bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full">Sunucu Admini</span>
+                                    <% } %>
+                                </a>
+                            </li>
+                            <li class="hover:bg-gray-600 transition-colors">
+                                <a href="/logout" class="block px-4 py-3 text-white font-medium">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Çıkış
+                                </a>
+                            </li>
+                        <% } else { %>
+                            <li class="<%= activePage === 'login' ? 'bg-gray-600' : '' %> hover:bg-gray-600 transition-colors">
+                                <a href="/login" class="block px-4 py-3 text-white font-medium">
+                                    <i class="fas fa-sign-in-alt mr-2"></i>Giriş
+                                </a>
+                            </li>
+                            <li class="<%= activePage === 'register' ? 'bg-gray-600' : '' %> hover:bg-gray-600 transition-colors">
+                                <a href="/register" class="block px-4 py-3 text-white font-medium">
+                                    <i class="fas fa-user-plus mr-2"></i>Kayıt Ol
+                                </a>
+                            </li>
+                        <% } %>
+                    </div>
                 </ul>
             </div>
         </nav>
@@ -118,6 +154,30 @@
                 </div>
             </div>
         </div>
+
+        <!-- Flash Messages Container -->
+        <% if(typeof(messages) != 'undefined') { %>
+            <% if(messages.error && messages.error.length > 0) { %>
+                <div class="container mx-auto px-4">
+                    <div class="bg-gradient-to-r from-red-900/80 to-red-800/80 border border-red-700 text-white px-5 py-4 rounded-lg mb-4 flex items-center shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="font-medium"><%= messages.error %></span>
+                    </div>
+                </div>
+            <% } %>
+            <% if(messages.success && messages.success.length > 0) { %>
+                <div class="container mx-auto px-4">
+                    <div class="bg-gradient-to-r from-green-900/80 to-green-800/80 border border-green-700 text-white px-5 py-4 rounded-lg mb-4 flex items-center shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="font-medium"><%= messages.success %></span>
+                    </div>
+                </div>
+            <% } %>
+        <% } %>
 
         <!-- Main Content Container -->
         <main class="container mx-auto py-4 px-4"> 

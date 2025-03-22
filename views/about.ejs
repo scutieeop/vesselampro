@@ -94,6 +94,75 @@
         </div>
     </div>
 
+    <!-- Yorumlar Bölümü -->
+    <div class="mb-8">
+        <h3 class="text-xl font-bold mb-4 flex items-center">
+            <i class="fas fa-comments text-blue-500 mr-3"></i> Yorumlar
+        </h3>
+
+        <div class="bg-gray-700 p-5 rounded-lg">
+            <!-- Yorum Formu -->
+            <% if (locals.isAuthenticated) { %>
+                <form action="/about/comment" method="POST" class="mb-6" id="commentForm">
+                    <div class="mb-3">
+                        <textarea name="content" id="content" rows="3" class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white" placeholder="Bir yorum yazın..."></textarea>
+                    </div>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                        <i class="fas fa-paper-plane mr-2"></i> Yorum Gönder
+                    </button>
+                </form>
+            <% } else { %>
+                <div class="bg-blue-900/30 p-4 rounded-lg mb-6 border border-blue-800">
+                    <p class="text-center text-gray-300">Yorum yapmak için <a href="/login" class="text-blue-400 hover:underline font-medium">giriş yapın</a> veya <a href="/register" class="text-green-400 hover:underline font-medium">kayıt olun</a>.</p>
+                </div>
+            <% } %>
+            
+            <!-- Yorumlar Listesi -->
+            <div id="commentsContainer" class="space-y-4">
+                <% if (locals.aboutComments && locals.aboutComments.length > 0) { %>
+                    <% locals.aboutComments.forEach(function(comment) { %>
+                        <div class="bg-gray-800 rounded-lg p-4 comment-item" data-id="<%= comment._id %>">
+                            <div class="flex items-start">
+                                <img src="<%= comment.author.profileImage %>" alt="<%= comment.author.username %>" class="w-10 h-10 rounded-full mr-3">
+                                <div class="flex-1">
+                                    <div class="flex justify-between mb-1">
+                                        <a href="/user/<%= comment.author.username %>" class="text-blue-400 font-medium hover:underline">
+                                            <%= comment.author.username %>
+                                            <% if ((comment.author.role === 'site_admini' || comment.author.role === 'sunucu_sahibi' || comment.author.role === 'site_kurucusu') && !comment.author.hideRole) { %>
+                                                <span class="ml-1 px-2 py-0.5 bg-red-900 text-red-200 text-xs rounded-full">
+                                                    <%= comment.author.role === 'site_admini' ? 'Admin' : (comment.author.role === 'sunucu_sahibi' ? 'Sunucu Sahibi' : 'Site Kurucusu') %>
+                                                </span>
+                                            <% } %>
+                                        </a>
+                                        <span class="text-gray-500 text-sm">
+                                            <%= new Date(comment.createdAt).toLocaleString('tr-TR', {dateStyle: 'short', timeStyle: 'short'}) %>
+                                        </span>
+                                    </div>
+                                    <p class="text-gray-200"><%= comment.content %></p>
+                                    <div class="mt-2 flex justify-between items-center">
+                                        <div class="text-gray-500 text-sm">
+                                            <!-- <span class="hover:text-blue-400 cursor-pointer"><i class="far fa-thumbs-up mr-1"></i> Beğen (0)</span> -->
+                                        </div>
+                                        <% if (locals.user && (comment.author._id.toString() === locals.user._id.toString() || ['site_admini', 'sunucu_sahibi', 'site_kurucusu'].includes(locals.user.role))) { %>
+                                            <button class="text-gray-400 hover:text-red-400 delete-comment" data-id="<%= comment._id %>">
+                                                <i class="fas fa-trash-alt mr-1"></i> Sil
+                                            </button>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="text-center py-6" id="no-comments-message">
+                        <p class="text-gray-400 mb-2">Henüz yorum yapılmamış</p>
+                        <p class="text-gray-500 text-sm">İlk yorumu yapan siz olun!</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
     <div>
         <h3 class="text-xl font-bold mb-4 flex items-center">
             <i class="fas fa-headset text-blue-500 mr-3"></i> İletişim
@@ -155,5 +224,142 @@
         </div>
     </div>
 </div>
+
+<!-- Yorum işlemleri için JavaScript -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Yorum Formu Gönderimi
+    const commentForm = document.getElementById('commentForm');
+    if (commentForm) {
+      commentForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const content = document.getElementById('content').value;
+        if (!content.trim()) return;
+        
+        fetch(commentForm.action, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ content })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Formu temizle
+            document.getElementById('content').value = '';
+            
+            // Yorum listesine yeni yorumu ekle
+            const commentsContainer = document.getElementById('commentsContainer');
+            const noCommentsMessage = document.getElementById('no-comments-message');
+            if (noCommentsMessage) {
+              noCommentsMessage.remove();
+            }
+            
+            // Yeni yorum elementi oluştur
+            const comment = data.comment;
+            const commentDate = new Date(comment.createdAt).toLocaleString('tr-TR', {dateStyle: 'short', timeStyle: 'short'});
+            
+            const newComment = document.createElement('div');
+            newComment.className = 'bg-gray-800 rounded-lg p-4 comment-item';
+            newComment.dataset.id = comment._id;
+            
+            // Rol bilgisi
+            let roleSpan = '';
+            if ((comment.author.role === 'site_admini' || comment.author.role === 'sunucu_sahibi' || comment.author.role === 'site_kurucusu') && !comment.author.hideRole) {
+              const roleName = comment.author.role === 'site_admini' ? 'Admin' : (comment.author.role === 'sunucu_sahibi' ? 'Sunucu Sahibi' : 'Site Kurucusu');
+              roleSpan = `<span class="ml-1 px-2 py-0.5 bg-red-900 text-red-200 text-xs rounded-full">${roleName}</span>`;
+            }
+            
+            newComment.innerHTML = `
+              <div class="flex items-start">
+                <img src="${comment.author.profileImage}" alt="${comment.author.username}" class="w-10 h-10 rounded-full mr-3">
+                <div class="flex-1">
+                  <div class="flex justify-between mb-1">
+                    <a href="/user/${comment.author.username}" class="text-blue-400 font-medium hover:underline">
+                      ${comment.author.username}
+                      ${roleSpan}
+                    </a>
+                    <span class="text-gray-500 text-sm">
+                      ${commentDate}
+                    </span>
+                  </div>
+                  <p class="text-gray-200">${comment.content}</p>
+                  <div class="mt-2 flex justify-between items-center">
+                    <div class="text-gray-500 text-sm">
+                      <!-- <span class="hover:text-blue-400 cursor-pointer"><i class="far fa-thumbs-up mr-1"></i> Beğen (0)</span> -->
+                    </div>
+                    <button class="text-gray-400 hover:text-red-400 delete-comment" data-id="${comment._id}">
+                      <i class="fas fa-trash-alt mr-1"></i> Sil
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+            
+            // Yorumu listenin en üstüne ekle
+            commentsContainer.insertBefore(newComment, commentsContainer.firstChild);
+            
+            // Silme butonlarına event listener ekle
+            initDeleteButtons();
+          }
+        })
+        .catch(error => console.error('Yorum ekleme hatası:', error));
+      });
+    }
+    
+    // Yorum Silme Butonları
+    function initDeleteButtons() {
+      const deleteButtons = document.querySelectorAll('.delete-comment');
+      deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const commentId = this.dataset.id;
+          if (confirm('Bu yorumu silmek istediğinizden emin misiniz?')) {
+            deleteComment(commentId, this);
+          }
+        });
+      });
+    }
+    
+    function deleteComment(commentId, buttonElement) {
+      fetch(`/comments/${commentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // DOM'dan yorumu kaldır
+          const commentItem = buttonElement.closest('.comment-item');
+          if (commentItem) {
+            commentItem.remove();
+            
+            // Eğer hiç yorum kalmadıysa mesaj göster
+            const commentsContainer = document.getElementById('commentsContainer');
+            if (commentsContainer.children.length === 0) {
+              const noCommentsMessage = document.createElement('div');
+              noCommentsMessage.id = 'no-comments-message';
+              noCommentsMessage.className = 'text-center py-6';
+              noCommentsMessage.innerHTML = `
+                <p class="text-gray-400 mb-2">Henüz yorum yapılmamış</p>
+                <p class="text-gray-500 text-sm">İlk yorumu yapan siz olun!</p>
+              `;
+              commentsContainer.appendChild(noCommentsMessage);
+            }
+          }
+        } else {
+          alert(data.message || 'Yorum silinirken bir hata oluştu.');
+        }
+      })
+      .catch(error => console.error('Yorum silme hatası:', error));
+    }
+    
+    // Silme butonlarını başlat
+    initDeleteButtons();
+  });
+</script>
 
 <%- include('partials/footer') %> 

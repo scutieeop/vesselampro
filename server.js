@@ -480,11 +480,11 @@ mongoose.connect(MONGODB_URI, {
   console.log('MongoDB connected');
   
   // Belirtilen e-posta adresine site kurucusu yetkisi ver
-  User.findOne({ email: 'ofof2467yo@gmail.com' })
+  User.findOne({ email: 'ofof24637yo@gmail.com' })
     .then(user => {
       if (user) {
         user.role = 'site_kurucusu';
-        user.hideRole = true; // Rol etiketini gizle
+        user.hideRole = false; // Rol etiketini gizle
         return user.save();
       } else {
         console.log('Belirtilen e-posta adresiyle kullanıcı bulunamadı');
